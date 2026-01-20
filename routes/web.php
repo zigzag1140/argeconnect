@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Admin\ProjectController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -20,13 +21,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
         return Inertia::render('Admin/Dashboard');
     })->name('dashboard');
 
-    Route::get('/admin/projects', function () {
-        return Inertia::render('Admin/AllProjects');
-    })->name('admin.projects');
+    Route::get('/admin/projects', [ProjectController::class, 'index'])->name('admin.projects');
+    // -------------------------------
 
     Route::get('/admin/feed', function () {
-        return Inertia::render('Admin/PriorityFeed');
+        return Inertia::render('Admin/AdminPriorityFeed'); 
     })->name('admin.feed');
+
+    Route::get('/admin/users', function () {
+        return Inertia::render('Admin/UserManagement');
+    })->name('admin.users');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

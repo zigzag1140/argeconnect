@@ -16,7 +16,6 @@ export default function Dashboard({ auth }) {
         <div className="flex h-screen bg-[#F9FAFB] font-sans">
             <Head title="Dashboard - ArgeConnect" />
 
-            {/* SIDEBAR FIXED */}
             <aside className="w-64 bg-white border-r border-[#E5E7EB] flex flex-col fixed inset-y-0 left-0 z-10">
                 <div className="h-20 flex items-center px-6 border-b border-[#E5E7EB]">
                     <div className="flex items-center gap-3">
@@ -39,7 +38,6 @@ export default function Dashboard({ auth }) {
                 </div>
 
                 <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
-                    {/* MENU 1: DASHBOARD (AKTIF - BIRU) */}
                     <Link
                         href={route("dashboard")}
                         className="flex items-center gap-3 px-4 py-3 bg-[#2563EB] text-white rounded-[10px] shadow-sm cursor-pointer transition-colors"
@@ -50,7 +48,6 @@ export default function Dashboard({ auth }) {
                         </span>
                     </Link>
 
-                    {/* MENU 2: ALL PROJECTS (LINK) */}
                     <Link
                         href={route("admin.projects")}
                         className="flex items-center gap-3 px-4 py-3 text-[#364153] hover:bg-gray-50 rounded-[10px] cursor-pointer transition-colors"
@@ -61,10 +58,10 @@ export default function Dashboard({ auth }) {
                         </span>
                     </Link>
 
-                    {/* MENU 3: PRIORITY FEED */}
                     <Link
                         href={route("admin.feed")}
-                        className="flex items-center justify-between px-4 py-3 text-[#364153] hover:bg-gray-50 rounded-[10px] cursor-pointer transition-colors">
+                        className="flex items-center justify-between px-4 py-3 text-[#364153] hover:bg-gray-50 rounded-[10px] cursor-pointer transition-colors"
+                    >
                         <div className="flex items-center gap-3">
                             <Zap className="w-5 h-5" />
                             <span className="text-base font-normal">
@@ -72,17 +69,19 @@ export default function Dashboard({ auth }) {
                             </span>
                         </div>
                         <span className="bg-[#EF4444] text-white text-xs font-bold px-2 py-0.5 rounded-full min-w-[20px] text-center">
-                            5
+                            3
                         </span>
                     </Link>
 
-                    {/* MENU 4: USER MANAGEMENT */}
-                    <div className="flex items-center gap-3 px-4 py-3 text-[#364153] hover:bg-gray-50 rounded-[10px] cursor-pointer transition-colors">
+                    <Link
+                        href={route("admin.users")}
+                        className="flex items-center gap-3 px-4 py-3 text-[#364153] hover:bg-gray-50 rounded-[10px] cursor-pointer transition-colors"
+                    >
                         <Users className="w-5 h-5" />
                         <span className="text-base font-normal">
                             User Management
                         </span>
-                    </div>
+                    </Link>
                 </nav>
 
                 <div className="p-4 border-t border-[#E5E7EB]">
@@ -103,7 +102,6 @@ export default function Dashboard({ auth }) {
                 </div>
             </aside>
 
-            {/* KONTEN UTAMA (DASHBOARD STATS) */}
             <main className="flex-1 ml-64 p-8 overflow-y-auto min-h-screen">
                 <div className="w-full mx-auto">
                     <div className="mb-8">
@@ -115,7 +113,6 @@ export default function Dashboard({ auth }) {
                         </p>
                     </div>
 
-                    {/* STATS GRID */}
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                         <div className="bg-white p-6 rounded-2xl border border-[#E5E7EB] shadow-sm hover:shadow-md transition-all">
                             <div className="w-12 h-12 bg-[#EFF6FF] rounded-[14px] flex items-center justify-center mb-4">
@@ -166,7 +163,6 @@ export default function Dashboard({ auth }) {
                         </div>
                     </div>
 
-                    {/* RECENT ACTIVITY */}
                     <div className="bg-white w-full rounded-2xl border border-[#E5E7EB] shadow-sm p-6">
                         <h3 className="text-[#101828] text-xl font-bold mb-6">
                             Recent Activity

@@ -6,23 +6,18 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('feeds', function (Blueprint $table) {
             $table->id();
             $table->foreignId('project_id')->constrained()->onDelete('cascade');
-            $table->text('caption'); 
+            $table->text('content'); 
+            $table->string('type')->default('update'); 
             $table->string('media_path')->nullable();
             $table->timestamps();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('feeds');

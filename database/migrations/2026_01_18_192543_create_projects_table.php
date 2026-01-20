@@ -6,25 +6,19 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('projects', function (Blueprint $table) {
             $table->id();
             $table->string('title');
             $table->text('description')->nullable();
-            $table->string('access_token')->unique(); 
-            $table->enum('status', ['active', 'completed', 'hold'])->default('active');
+            $table->string('access_token')->nullable(); 
+            $table->string('status')->default('In Progress');
             $table->integer('progress')->default(0); 
             $table->timestamps();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('projects');

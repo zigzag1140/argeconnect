@@ -6,22 +6,18 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('comments', function (Blueprint $table) {
             $table->id();
             $table->foreignId('feed_id')->constrained()->onDelete('cascade');
-            $table->foreignId('user_id')->constrained()->onDelete('cascade'); // Siapa yang komen
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->text('content');
-        
-        // Prioritas
+            
             $table->string('sentiment')->nullable(); 
-            $table->enum('priority', ['high', 'medium', 'low'])->default('low');
-        
-        // Status Admin
+            $table->string('priority')->default('Normal'); 
+            $table->boolean('is_resolved')->default(false); 
+            
             $table->enum('reaction', ['acc', 'discuss'])->nullable(); 
             $table->boolean('is_read')->default(false);
         
@@ -29,9 +25,6 @@ return new class extends Migration
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('comments');

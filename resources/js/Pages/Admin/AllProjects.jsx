@@ -8,36 +8,15 @@ import {
     Search,
 } from "lucide-react";
 
-export default function AllProjects({ auth }) {
-    const projects = [
-        {
-            id: 1,
-            title: "Website FTI",
-            client: "Rahmadatul",
-            status: "In Progress",
-            progress: 75,
-        },
-        {
-            id: 2,
-            title: "Unand Mobile",
-            client: "DTI Unand",
-            status: "In Progress",
-            progress: 60,
-        },
-    ];
+export default function AllProjects({ auth, projects }) {
 
     return (
         <div className="flex h-screen bg-[#F9FAFB] font-sans">
             <Head title="All Projects - ArgeConnect" />
 
-            {/* --- SIDEBAR --- */}
             <aside className="w-64 bg-white border-r border-[#E5E7EB] flex flex-col fixed inset-y-0 left-0 z-10">
-                {/* Logo Section (Sekarang bisa diklik ke Dashboard) */}
                 <div className="h-20 flex items-center px-6 border-b border-[#E5E7EB]">
-                    <Link
-                        href={route("dashboard")}
-                        className="flex items-center gap-3"
-                    >
+                    <div className="flex items-center gap-3">
                         <div className="w-8 h-8 flex items-center justify-center">
                             <img
                                 src="/images/logo.png"
@@ -53,12 +32,10 @@ export default function AllProjects({ auth }) {
                                 Admin Portal
                             </span>
                         </div>
-                    </Link>
+                    </div>
                 </div>
 
                 <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
-                    {/* 1. Menu Dashboard (INACTIVE STATE - ABU-ABU) */}
-                    {/* Ini tombol buat BALIK ke Dashboard */}
                     <Link
                         href={route("dashboard")}
                         className="flex items-center gap-3 px-4 py-3 text-[#364153] hover:bg-gray-50 rounded-[10px] cursor-pointer transition-colors"
@@ -69,19 +46,14 @@ export default function AllProjects({ auth }) {
                         </span>
                     </Link>
 
-                    {/* 2. Menu All Projects (ACTIVE STATE - BIRU) */}
-                    {/* Karena kita sedang di halaman ini, warnanya biru */}
-                    <Link
-                        href={route("admin.projects")}
-                        className="flex items-center gap-3 px-4 py-3 bg-[#2563EB] text-white rounded-[10px] shadow-sm cursor-pointer transition-colors"
-                    >
+                    {/* Active State */}
+                    <div className="flex items-center gap-3 px-4 py-3 bg-[#2563EB] text-white rounded-[10px] shadow-sm cursor-pointer transition-colors">
                         <FolderOpen className="w-5 h-5" />
                         <span className="text-base font-normal">
                             All Projects
                         </span>
-                    </Link>
+                    </div>
 
-                    {/* 3. Priority Feed (Placeholder Link) */}
                     <Link
                         href={route("admin.feed")}
                         className="flex items-center justify-between px-4 py-3 text-[#364153] hover:bg-gray-50 rounded-[10px] cursor-pointer transition-colors"
@@ -93,13 +65,12 @@ export default function AllProjects({ auth }) {
                             </span>
                         </div>
                         <span className="bg-[#EF4444] text-white text-xs font-bold px-2 py-0.5 rounded-full min-w-[20px] text-center">
-                            3
+                            5
                         </span>
                     </Link>
 
-                    {/* 4. User Management (Placeholder Link) */}
                     <Link
-                        href="#" // Nanti diganti route('admin.users')
+                        href={route("admin.users")}
                         className="flex items-center gap-3 px-4 py-3 text-[#364153] hover:bg-gray-50 rounded-[10px] cursor-pointer transition-colors"
                     >
                         <Users className="w-5 h-5" />
@@ -109,7 +80,6 @@ export default function AllProjects({ auth }) {
                     </Link>
                 </nav>
 
-                {/* Profil User */}
                 <div className="p-4 border-t border-[#E5E7EB]">
                     <div className="flex items-center gap-3 p-3 rounded-[10px] hover:bg-gray-50 cursor-pointer transition-colors">
                         <div className="w-10 h-10 rounded-full bg-gradient-to-b from-[#2563EB] to-[#1D4ED8] flex items-center justify-center text-white font-bold text-sm shrink-0">
@@ -128,7 +98,6 @@ export default function AllProjects({ auth }) {
                 </div>
             </aside>
 
-            {/* --- MAIN CONTENT --- */}
             <main className="flex-1 ml-64 p-8 overflow-y-auto min-h-screen">
                 <div className="w-full mx-auto">
                     <div className="mb-8">
@@ -140,7 +109,6 @@ export default function AllProjects({ auth }) {
                         </p>
                     </div>
 
-                    {/* Search Bar */}
                     <div className="mb-8 bg-white p-4 rounded-[14px] border border-[#E5E7EB] shadow-sm">
                         <div className="relative">
                             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -154,8 +122,8 @@ export default function AllProjects({ auth }) {
                         </div>
                     </div>
 
-                    {/* Projects Grid */}
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        {/* MAPPING DATA DARI DATABASE */}
                         {projects.map((project) => (
                             <div
                                 key={project.id}

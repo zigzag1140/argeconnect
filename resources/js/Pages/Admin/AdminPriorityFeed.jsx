@@ -7,7 +7,6 @@ import {
     Bell,
     MessageSquare,
     CheckCircle,
-    ExternalLink,
 } from "lucide-react";
 
 export default function PriorityFeed({ auth }) {
@@ -107,16 +106,19 @@ export default function PriorityFeed({ auth }) {
                             </span>
                         </div>
                         <span className="bg-white text-[#EF4444] text-xs font-bold px-2 py-0.5 rounded-full min-w-[20px] text-center">
-                            3
+                            5
                         </span>
                     </Link>
 
-                    <div className="flex items-center gap-3 px-4 py-3 text-[#364153] hover:bg-gray-50 rounded-[10px] cursor-pointer transition-colors">
+                    <Link
+                        href={route("admin.users")}
+                        className="flex items-center gap-3 px-4 py-3 text-[#364153] hover:bg-gray-50 rounded-[10px] cursor-pointer transition-colors"
+                    >
                         <Users className="w-5 h-5" />
                         <span className="text-base font-normal">
                             User Management
                         </span>
-                    </div>
+                    </Link>
                 </nav>
 
                 <div className="p-4 border-t border-[#E5E7EB]">
