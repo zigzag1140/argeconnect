@@ -83,7 +83,7 @@ export default function AllProjects({ auth }) {
 
                     {/* 3. Priority Feed (Placeholder Link) */}
                     <Link
-                        href="#" // Nanti diganti route('admin.feed')
+                        href={route("admin.feed")}
                         className="flex items-center justify-between px-4 py-3 text-[#364153] hover:bg-gray-50 rounded-[10px] cursor-pointer transition-colors"
                     >
                         <div className="flex items-center gap-3">

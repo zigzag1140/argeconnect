@@ -24,6 +24,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         return Inertia::render('Admin/AllProjects');
     })->name('admin.projects');
 
+    Route::get('/admin/feed', function () {
+        return Inertia::render('Admin/PriorityFeed');
+    })->name('admin.feed');
+
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
