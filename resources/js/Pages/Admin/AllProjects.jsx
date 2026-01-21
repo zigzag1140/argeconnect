@@ -165,10 +165,13 @@ export default function AllProjects({ auth, projects }) {
                                 <option value="Completed">Completed</option>
                             </select>
 
-                            <button className="w-full md:w-auto flex items-center justify-center gap-2 px-6 py-2.5 bg-[#2563EB] text-white rounded-lg font-medium hover:bg-[#1d4ed8] transition-colors shadow-sm whitespace-nowrap text-sm">
+                            <Link
+                                href={route("admin.projects.create")}
+                                className="w-full md:w-auto flex items-center justify-center gap-2 px-6 py-2.5 bg-[#2563EB] text-white rounded-lg font-medium hover:bg-[#1d4ed8] transition-colors shadow-sm whitespace-nowrap text-sm"
+                            >
                                 <Plus size={20} />
                                 <span>New Project</span>
-                            </button>
+                            </Link>
                         </div>
                     </div>
 
@@ -234,13 +237,16 @@ export default function AllProjects({ auth, projects }) {
                                         </div>
                                     </div>
 
-                                    <div className="pt-4 border-t border-gray-100 flex gap-3 mt-auto">
-                                        <button className="flex-1 px-4 py-2 bg-[#2563EB] text-white rounded-lg font-medium hover:bg-[#1d4ed8] transition-colors text-sm">
+                                    <div className="pt-4 border-t border-gray-100 mt-auto">
+                                        <Link
+                                            href={route(
+                                                "admin.projects.show",
+                                                project.id,
+                                            )}
+                                            className="block w-full bg-[#2563EB] hover:bg-blue-700 text-white py-2 rounded-[10px] text-base font-normal transition-colors text-center"
+                                        >
                                             View Details
-                                        </button>
-                                        <button className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors text-sm">
-                                            Updates
-                                        </button>
+                                        </Link>
                                     </div>
                                 </div>
                             ))
