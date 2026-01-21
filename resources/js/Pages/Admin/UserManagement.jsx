@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Head, Link } from "@inertiajs/react";
 import {
     LayoutDashboard,
@@ -8,89 +9,14 @@ import {
     Search,
 } from "lucide-react";
 
-export default function UserManagement({ auth }) {
-    const clients = [
-        {
-            id: 1,
-            name: "Budi Santoso",
-            initials: "BS",
-            project: "E-Commerce Web Revamp",
-            status: "Active Access",
-            color: "bg-blue-600",
-        },
-        {
-            id: 2,
-            name: "PT Maju Jaya",
-            initials: "MJ",
-            project: "Company Profile App",
-            status: "Active Access",
-            color: "bg-indigo-600",
-        },
-        {
-            id: 3,
-            name: "Sarah Mitchell",
-            initials: "SM",
-            project: "CRM Dashboard System",
-            status: "Active Access",
-            color: "bg-purple-600",
-        },
-        {
-            id: 4,
-            name: "PT Digital Indonesia",
-            initials: "DI",
-            project: "Mobile Banking Platform",
-            status: "Active Access",
-            color: "bg-green-600",
-        },
-        {
-            id: 5,
-            name: "Marcus Chen",
-            initials: "MC",
-            project: "Inventory Management System",
-            status: "Active Access",
-            color: "bg-red-600",
-        },
-        {
-            id: 6,
-            name: "PT Tech Solutions",
-            initials: "TS",
-            project: "Real Estate Portal",
-            status: "Active Access",
-            color: "bg-orange-600",
-        },
-        {
-            id: 7,
-            name: "Jennifer Lopez",
-            initials: "JL",
-            project: "Healthcare Management App",
-            status: "Active Access",
-            color: "bg-teal-600",
-        },
-        {
-            id: 8,
-            name: "David Park",
-            initials: "DP",
-            project: "Education Platform",
-            status: "Active Access",
-            color: "bg-cyan-600",
-        },
-        {
-            id: 9,
-            name: "PT Kreatif Media",
-            initials: "KM",
-            project: "Content Management System",
-            status: "Active Access",
-            color: "bg-pink-600",
-        },
-        {
-            id: 10,
-            name: "Emma Wilson",
-            initials: "EW",
-            project: "Restaurant Ordering App",
-            status: "Active Access",
-            color: "bg-yellow-600",
-        },
-    ];
+export default function UserManagement({ auth, clients }) {
+    const [searchTerm, setSearchTerm] = useState("");
+
+    const filteredClients = clients.filter(
+        (client) =>
+            client.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            client.project.toLowerCase().includes(searchTerm.toLowerCase()),
+    );
 
     return (
         <div className="flex h-screen bg-[#F9FAFB] font-sans">
@@ -153,15 +79,12 @@ export default function UserManagement({ auth }) {
                         </span>
                     </Link>
 
-                    <Link
-                        href={route("admin.users")}
-                        className="flex items-center gap-3 px-4 py-3 bg-[#2563EB] text-white rounded-[10px] shadow-sm cursor-pointer transition-colors"
-                    >
+                    <div className="flex items-center gap-3 px-4 py-3 bg-[#2563EB] text-white rounded-[10px] shadow-sm cursor-pointer transition-colors">
                         <Users className="w-5 h-5" />
                         <span className="text-base font-normal">
                             User Management
                         </span>
-                    </Link>
+                    </div>
                 </nav>
 
                 <div className="p-4 border-t border-[#E5E7EB]">
@@ -201,6 +124,8 @@ export default function UserManagement({ auth }) {
                             <input
                                 type="text"
                                 placeholder="Search client name..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
                                 className="block w-full pl-10 pr-4 py-2.5 border border-[#D1D5DC] rounded-[10px] text-[#101828] placeholder:text-[#99A1AF] placeholder:opacity-50 focus:ring-1 focus:ring-[#2563EB] focus:border-[#2563EB] outline-none sm:text-sm bg-white"
                             />
                         </div>
@@ -220,38 +145,50 @@ export default function UserManagement({ auth }) {
                         </div>
 
                         <div className="divide-y divide-[#F3F4F6]">
-                            {clients.map((client) => (
-                                <div
-                                    key={client.id}
-                                    className="grid grid-cols-12 items-center py-4 px-6 hover:bg-gray-50 transition-colors"
-                                >
-                                    <div className="col-span-4 flex items-center gap-3">
-                                        <div
-                                            className={`w-10 h-10 rounded-full bg-gradient-to-b from-[#2563EB] to-[#1D4ED8] flex items-center justify-center text-white font-bold text-sm shrink-0`}
-                                        >
-                                            {client.initials}
+                            {filteredClients.length > 0 ? (
+                                filteredClients.map((client) => (
+                                    <div
+                                        key={client.id}
+                                        className="grid grid-cols-12 items-center py-4 px-6 hover:bg-gray-50 transition-colors"
+                                    >
+                                        <div className="col-span-4 flex items-center gap-3">
+                                            <div
+                                                className={`w-10 h-10 rounded-full bg-gradient-to-b from-[#2563EB] to-[#1D4ED8] flex items-center justify-center text-white font-bold text-sm shrink-0`}
+                                            >
+                                                {client.initials}
+                                            </div>
+                                            <span className="text-[#101828] text-base font-normal truncate">
+                                                {client.name}
+                                            </span>
                                         </div>
-                                        <span className="text-[#101828] text-base font-normal truncate">
-                                            {client.name}
-                                        </span>
+                                        <div className="col-span-5 text-[#364153] text-base font-normal truncate pr-4">
+                                            {client.project}
+                                        </div>
+                                        <div className="col-span-3">
+                                            <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-normal bg-[#DCFCE7] text-[#008236]">
+                                                {client.status}
+                                            </span>
+                                        </div>
                                     </div>
-                                    <div className="col-span-5 text-[#364153] text-base font-normal truncate pr-4">
-                                        {client.project}
-                                    </div>
-                                    <div className="col-span-3">
-                                        <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-normal bg-[#DCFCE7] text-[#008236]">
-                                            {client.status}
-                                        </span>
-                                    </div>
+                                ))
+                            ) : (
+                                <div className="py-8 text-center text-gray-500">
+                                    No clients found.
                                 </div>
-                            ))}
+                            )}
                         </div>
                     </div>
 
                     <div className="flex justify-between items-center mt-4">
                         <div className="text-[#4A5565] text-sm font-normal">
-                            Showing <span className="text-[#101828]">10</span>{" "}
-                            of <span className="text-[#101828]">10</span>{" "}
+                            Showing{" "}
+                            <span className="text-[#101828] font-bold">
+                                {filteredClients.length}
+                            </span>{" "}
+                            of{" "}
+                            <span className="text-[#101828] font-bold">
+                                {clients.length}
+                            </span>{" "}
                             clients
                         </div>
                         <div className="text-[#6A7282] text-sm font-normal">

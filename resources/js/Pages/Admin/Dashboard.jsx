@@ -11,7 +11,13 @@ import {
     Clock,
 } from "lucide-react";
 
-export default function Dashboard({ auth }) {
+export default function Dashboard({
+    auth,
+    totalProjects,
+    activeProjects,
+    totalClients,
+    recentProjects,
+}) {
     return (
         <div className="flex h-screen bg-[#F9FAFB] font-sans">
             <Head title="Dashboard - ArgeConnect" />
@@ -69,7 +75,7 @@ export default function Dashboard({ auth }) {
                             </span>
                         </div>
                         <span className="bg-[#EF4444] text-white text-xs font-bold px-2 py-0.5 rounded-full min-w-[20px] text-center">
-                            3
+                            5
                         </span>
                     </Link>
 
@@ -119,7 +125,7 @@ export default function Dashboard({ auth }) {
                                 <FolderKanban className="w-6 h-6 text-[#2563EB]" />
                             </div>
                             <div className="text-[#101828] text-3xl font-bold mb-1">
-                                12
+                                {activeProjects}
                             </div>
                             <div className="text-[#364153] text-sm font-normal">
                                 Active Projects
@@ -131,7 +137,7 @@ export default function Dashboard({ auth }) {
                                 <Users className="w-6 h-6 text-[#9810FA]" />
                             </div>
                             <div className="text-[#101828] text-3xl font-bold mb-1">
-                                34
+                                {totalClients}
                             </div>
                             <div className="text-[#364153] text-sm font-normal">
                                 Total Clients
@@ -143,7 +149,7 @@ export default function Dashboard({ auth }) {
                                 <AlertCircle className="w-6 h-6 text-[#EF4444]" />
                             </div>
                             <div className="text-[#101828] text-3xl font-bold mb-1">
-                                8
+                                5
                             </div>
                             <div className="text-[#364153] text-sm font-normal">
                                 Pending Revisions
@@ -155,94 +161,63 @@ export default function Dashboard({ auth }) {
                                 <CheckCircle2 className="w-6 h-6 text-[#00A63E]" />
                             </div>
                             <div className="text-[#101828] text-3xl font-bold mb-1">
-                                23
+                                {totalProjects - activeProjects}
                             </div>
                             <div className="text-[#364153] text-sm font-normal">
-                                Completed this Month
+                                Completed Projects
                             </div>
                         </div>
                     </div>
 
                     <div className="bg-white w-full rounded-2xl border border-[#E5E7EB] shadow-sm p-6">
-                        <h3 className="text-[#101828] text-xl font-bold mb-6">
-                            Recent Activity
-                        </h3>
+                        <div className="flex items-center justify-between mb-6">
+                            <h3 className="text-[#101828] text-xl font-bold">
+                                Recent Activity
+                            </h3>
+                            <Link
+                                href={route("admin.projects")}
+                                className="text-[#2563EB] text-sm font-medium hover:underline"
+                            >
+                                View All
+                            </Link>
+                        </div>
 
                         <div className="space-y-2">
-                            <div className="flex flex-col sm:flex-row gap-4 p-4 rounded-xl hover:bg-gray-50 transition-colors border border-transparent hover:border-gray-100">
-                                <div className="w-10 h-10 rounded-full bg-[#FFE2E2] flex items-center justify-center shrink-0">
-                                    <AlertCircle className="w-5 h-5 text-[#EF4444]" />
-                                </div>
-                                <div className="flex-1">
-                                    <div className="flex items-center gap-2 mb-1 flex-wrap">
-                                        <span className="text-[#101828] font-medium">
-                                            Rafiif
-                                        </span>
-                                        <span className="text-[#99A1AF] hidden sm:inline">
-                                            •
-                                        </span>
-                                        <span className="text-[#2563EB] text-sm font-medium cursor-pointer hover:underline">
-                                            E-Commerce Platform
-                                        </span>
+                            {recentProjects.length > 0 ? (
+                                recentProjects.map((project) => (
+                                    <div
+                                        key={project.id}
+                                        className="flex flex-col sm:flex-row gap-4 p-4 rounded-xl hover:bg-gray-50 transition-colors border border-transparent hover:border-gray-100"
+                                    >
+                                        <div className="w-10 h-10 rounded-full bg-[#DBEAFE] flex items-center justify-center shrink-0">
+                                            <FolderOpen className="w-5 h-5 text-[#2563EB]" />
+                                        </div>
+                                        <div className="flex-1">
+                                            <div className="flex items-center gap-2 mb-1 flex-wrap">
+                                                <span className="text-[#101828] font-medium">
+                                                    {project.client}
+                                                </span>
+                                                <span className="text-[#99A1AF] hidden sm:inline">
+                                                    •
+                                                </span>
+                                                <span className="text-[#2563EB] text-sm font-medium cursor-pointer hover:underline">
+                                                    {project.title}
+                                                </span>
+                                            </div>
+                                            <p className="text-[#4A5565] text-sm mb-1">
+                                                Project Status: {project.status}
+                                            </p>
+                                            <span className="text-[#6A7282] text-xs">
+                                                {project.date}
+                                            </span>
+                                        </div>
                                     </div>
-                                    <p className="text-[#4A5565] text-sm mb-1">
-                                        Requested revisions on checkout flow
-                                    </p>
-                                    <span className="text-[#6A7282] text-xs">
-                                        10 minutes ago
-                                    </span>
-                                </div>
-                            </div>
-
-                            <div className="flex flex-col sm:flex-row gap-4 p-4 rounded-xl hover:bg-gray-50 transition-colors border border-transparent hover:border-gray-100">
-                                <div className="w-10 h-10 rounded-full bg-[#DCFCE7] flex items-center justify-center shrink-0">
-                                    <CheckCircle2 className="w-5 h-5 text-[#00A63E]" />
-                                </div>
-                                <div className="flex-1">
-                                    <div className="flex items-center gap-2 mb-1 flex-wrap">
-                                        <span className="text-[#101828] font-medium">
-                                            Dafa
-                                        </span>
-                                        <span className="text-[#99A1AF] hidden sm:inline">
-                                            •
-                                        </span>
-                                        <span className="text-[#2563EB] text-sm font-medium cursor-pointer hover:underline">
-                                            Mobile App MVP
-                                        </span>
-                                    </div>
-                                    <p className="text-[#4A5565] text-sm mb-1">
-                                        Approved homepage design
-                                    </p>
-                                    <span className="text-[#6A7282] text-xs">
-                                        1 hour ago
-                                    </span>
-                                </div>
-                            </div>
-
-                            <div className="flex flex-col sm:flex-row gap-4 p-4 rounded-xl hover:bg-gray-50 transition-colors border border-transparent hover:border-gray-100">
-                                <div className="w-10 h-10 rounded-full bg-[#DBEAFE] flex items-center justify-center shrink-0">
-                                    <Clock className="w-5 h-5 text-[#2563EB]" />
-                                </div>
-                                <div className="flex-1">
-                                    <div className="flex items-center gap-2 mb-1 flex-wrap">
-                                        <span className="text-[#101828] font-medium">
-                                            Alfat
-                                        </span>
-                                        <span className="text-[#99A1AF] hidden sm:inline">
-                                            •
-                                        </span>
-                                        <span className="text-[#2563EB] text-sm font-medium cursor-pointer hover:underline">
-                                            CRM Dashboard
-                                        </span>
-                                    </div>
-                                    <p className="text-[#4A5565] text-sm mb-1">
-                                        Added feedback on data visualization
-                                    </p>
-                                    <span className="text-[#6A7282] text-xs">
-                                        3 hours ago
-                                    </span>
-                                </div>
-                            </div>
+                                ))
+                            ) : (
+                                <p className="text-gray-500 text-sm">
+                                    No recent activity.
+                                </p>
+                            )}
                         </div>
                     </div>
                 </div>
