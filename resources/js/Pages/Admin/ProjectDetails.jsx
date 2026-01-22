@@ -1,5 +1,5 @@
-import { useState, useRef } from "react";
-import { Head, Link, useForm } from "@inertiajs/react";
+import { useState, useRef, useEffect } from "react";
+import { Head, Link, useForm, router } from "@inertiajs/react";
 import {
     LayoutDashboard,
     FolderOpen,
@@ -9,16 +9,18 @@ import {
     ArrowLeft,
     Save,
     Calendar,
-    User,
     MessageSquare,
     Send,
     Paperclip,
     X,
     FileImage,
+    Info,
+    Trash2,
+    Pencil,
 } from "lucide-react";
 
-export default function ProjectDetails({ auth, project }) {
-    // Form untuk Update Status & Progress
+export default function ProjectDetails({ auth, project, feeds }) {
+    // --- STATE UTAMA ---
     const {
         data: controlsData,
         setData: setControlsData,
@@ -29,7 +31,6 @@ export default function ProjectDetails({ auth, project }) {
         progress: project.progress,
     });
 
-    // Form untuk Feed & Media
     const {
         data: feedData,
         setData: setFeedData,
@@ -41,8 +42,13 @@ export default function ProjectDetails({ auth, project }) {
         media: null,
     });
 
+    // --- STATE EDITING FEED ---
+    const [editingId, setEditingId] = useState(null);
+    const [editContent, setEditContent] = useState("");
+
     const fileInputRef = useRef(null);
 
+    // --- HANDLERS ---
     const handleUpdate = (e) => {
         e.preventDefault();
         patch(route("admin.projects.update", project.id));
@@ -50,21 +56,48 @@ export default function ProjectDetails({ auth, project }) {
 
     const handlePostFeed = (e) => {
         e.preventDefault();
-        // Logika posting feed (nanti dihubungkan ke controller)
-        // post(route('admin.feeds.store'));
-        console.log("Posting:", feedData);
-        reset(); // Reset form setelah post
+        post(route("admin.projects.feed.store", project.id), {
+            onSuccess: () => {
+                reset();
+                setFeedData("media", null);
+            },
+        });
     };
 
     const handleFileChange = (e) => {
         setFeedData("media", e.target.files[0]);
     };
 
+    // Fungsi Hapus Feed
+    const handleDeleteFeed = (feedId) => {
+        if (confirm("Are you sure you want to delete this update?")) {
+            router.delete(route("admin.feeds.destroy", feedId));
+        }
+    };
+
+    // Fungsi Mulai Edit
+    const startEditing = (feed) => {
+        setEditingId(feed.id);
+        setEditContent(feed.content);
+    };
+
+    // Fungsi Simpan Edit
+    const saveEdit = (feedId) => {
+        router.patch(
+            route("admin.feeds.update", feedId),
+            {
+                content: editContent,
+            },
+            {
+                onSuccess: () => setEditingId(null),
+            },
+        );
+    };
+
     return (
         <div className="flex h-screen bg-[#F9FAFB] font-sans">
             <Head title={`${project.title} - Details`} />
 
-            {/* --- SIDEBAR --- */}
             <aside className="w-64 bg-white border-r border-[#E5E7EB] flex flex-col fixed inset-y-0 left-0 z-10">
                 <div className="h-20 flex items-center px-6 border-b border-[#E5E7EB]">
                     <div className="flex items-center gap-3">
@@ -151,12 +184,8 @@ export default function ProjectDetails({ auth, project }) {
                 </div>
             </aside>
 
-            {/* --- MAIN CONTENT --- */}
             <main className="flex-1 ml-64 p-8 overflow-y-auto min-h-screen">
                 <div className="w-full max-w-6xl mx-auto">
-                    {" "}
-                    {/* Lebarkan container max-w-6xl */}
-                    {/* Header Simple */}
                     <div className="mb-6">
                         <Link
                             href={route("admin.projects")}
@@ -169,10 +198,9 @@ export default function ProjectDetails({ auth, project }) {
                             {project.title}
                         </h2>
                     </div>
+
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                        {/* KOLOM KIRI (2/3): Controls & Feed */}
                         <div className="lg:col-span-2 space-y-6">
-                            {/* Card: Project Controls */}
                             <div className="bg-white rounded-2xl border border-[#E5E7EB] shadow-sm p-6">
                                 <div className="flex items-center justify-between mb-6">
                                     <h3 className="text-[#101828] text-lg font-bold">
@@ -201,12 +229,6 @@ export default function ProjectDetails({ auth, project }) {
                                                 <option value="In Progress">
                                                     In Progress
                                                 </option>
-                                                <option value="Pending">
-                                                    Pending
-                                                </option>
-                                                <option value="Review">
-                                                    Review
-                                                </option>
                                                 <option value="Completed">
                                                     Completed
                                                 </option>
@@ -220,8 +242,6 @@ export default function ProjectDetails({ auth, project }) {
                                                 </span>
                                             </label>
                                             <div className="flex items-center h-[42px]">
-                                                {" "}
-                                                {/* Tinggi disamakan dengan input select */}
                                                 <input
                                                     type="range"
                                                     min="0"
@@ -255,7 +275,6 @@ export default function ProjectDetails({ auth, project }) {
                                 </form>
                             </div>
 
-                            {/* Card: Project Feed */}
                             <div className="bg-white rounded-2xl border border-[#E5E7EB] shadow-sm p-6">
                                 <div className="flex items-center gap-2 mb-6">
                                     <MessageSquare className="w-5 h-5 text-[#2563EB]" />
@@ -264,7 +283,6 @@ export default function ProjectDetails({ auth, project }) {
                                     </h3>
                                 </div>
 
-                                {/* Input Box */}
                                 <div className="mb-8 bg-[#F9FAFB] p-4 rounded-xl border border-[#E5E7EB] focus-within:ring-2 focus-within:ring-[#2563EB] focus-within:border-transparent transition-all">
                                     <textarea
                                         rows={3}
@@ -279,7 +297,6 @@ export default function ProjectDetails({ auth, project }) {
                                         placeholder="Write an update, report progress, or attach a file..."
                                     ></textarea>
 
-                                    {/* Media Preview */}
                                     {feedData.media && (
                                         <div className="mt-3 flex items-center gap-2 bg-white px-3 py-2 rounded-lg border border-gray-200 w-fit">
                                             <FileImage className="w-4 h-4 text-blue-500" />
@@ -297,7 +314,6 @@ export default function ProjectDetails({ auth, project }) {
                                         </div>
                                     )}
 
-                                    {/* Toolbar */}
                                     <div className="flex justify-between items-center mt-3 pt-3 border-t border-[#E5E7EB]">
                                         <div className="flex items-center gap-2">
                                             <input
@@ -323,46 +339,165 @@ export default function ProjectDetails({ auth, project }) {
                                         <button
                                             onClick={handlePostFeed}
                                             disabled={
-                                                !feedData.content &&
-                                                !feedData.media
+                                                (!feedData.content &&
+                                                    !feedData.media) ||
+                                                feedProcessing
                                             }
                                             className="flex items-center gap-2 px-4 py-1.5 text-xs font-bold text-white bg-[#2563EB] rounded-lg hover:bg-[#155EEF] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                         >
                                             <Send className="w-3 h-3" />
-                                            Post Update
+                                            {feedProcessing
+                                                ? "Posting..."
+                                                : "Post Update"}
                                         </button>
                                     </div>
                                 </div>
 
-                                {/* Feed History Placeholder */}
-                                <div className="space-y-6">
-                                    <div className="relative pl-6 border-l-2 border-gray-100">
-                                        <div className="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-blue-100 border-2 border-white"></div>
-                                        <div className="mb-1 flex items-center gap-2">
-                                            <span className="text-sm font-bold text-[#101828]">
-                                                Admin User
-                                            </span>
-                                            <span className="text-xs text-gray-500">
-                                                Just now
-                                            </span>
-                                        </div>
-                                        <p className="text-sm text-gray-600">
-                                            Project initialized. Welcome to the
-                                            workspace!
-                                        </p>
-                                    </div>
+                                <div className="space-y-8">
+                                    {feeds.length > 0 ? (
+                                        feeds.map((feed) => (
+                                            <div
+                                                key={feed.id}
+                                                className="relative pl-8 border-l-2 border-gray-100 group"
+                                            >
+                                                <div
+                                                    className={`absolute -left-[11px] top-0 w-5 h-5 rounded-full border-2 border-white flex items-center justify-center ${feed.type === "system" ? "bg-orange-400" : "bg-blue-500"}`}
+                                                >
+                                                    {feed.type === "system" ? (
+                                                        <Info
+                                                            size={12}
+                                                            className="text-white"
+                                                        />
+                                                    ) : (
+                                                        <div className="w-2 h-2 rounded-full bg-white"></div>
+                                                    )}
+                                                </div>
 
-                                    {/* Empty State jika belum ada feed lain */}
-                                    <div className="text-center py-8">
-                                        <p className="text-sm text-[#99A1AF] italic">
-                                            No other recent updates.
-                                        </p>
-                                    </div>
+                                                <div className="mb-2 flex items-center justify-between">
+                                                    <div className="flex items-center gap-2">
+                                                        <span
+                                                            className={`text-sm font-bold ${feed.type === "system" ? "text-orange-600" : "text-[#101828]"}`}
+                                                        >
+                                                            {feed.type ===
+                                                            "system"
+                                                                ? "System Update"
+                                                                : feed.user
+                                                                      ?.name}
+                                                        </span>
+                                                        <span className="text-xs text-gray-500">
+                                                            {feed.created_at}
+                                                        </span>
+                                                    </div>
+
+                                                    {/* TOMBOL EDIT/DELETE */}
+                                                    <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                        {feed.type !==
+                                                            "system" && (
+                                                            <button
+                                                                onClick={() =>
+                                                                    startEditing(
+                                                                        feed,
+                                                                    )
+                                                                }
+                                                                className="text-gray-400 hover:text-[#2563EB] transition-colors"
+                                                                title="Edit"
+                                                            >
+                                                                <Pencil
+                                                                    size={14}
+                                                                />
+                                                            </button>
+                                                        )}
+                                                        <button
+                                                            onClick={() =>
+                                                                handleDeleteFeed(
+                                                                    feed.id,
+                                                                )
+                                                            }
+                                                            className="text-gray-400 hover:text-red-500 transition-colors"
+                                                            title="Delete"
+                                                        >
+                                                            <Trash2 size={14} />
+                                                        </button>
+                                                    </div>
+                                                </div>
+
+                                                {editingId === feed.id ? (
+                                                    // --- MODE EDIT ---
+                                                    <div className="bg-white border border-[#2563EB] rounded-xl p-4 shadow-sm">
+                                                        <textarea
+                                                            value={editContent}
+                                                            onChange={(e) =>
+                                                                setEditContent(
+                                                                    e.target
+                                                                        .value,
+                                                                )
+                                                            }
+                                                            className="w-full text-sm border-gray-200 rounded-lg focus:ring-[#2563EB] focus:border-[#2563EB] min-h-[80px]"
+                                                        />
+                                                        <div className="flex justify-end gap-2 mt-3">
+                                                            <button
+                                                                onClick={() =>
+                                                                    setEditingId(
+                                                                        null,
+                                                                    )
+                                                                }
+                                                                className="px-3 py-1.5 text-xs text-gray-600 hover:bg-gray-100 rounded-lg"
+                                                            >
+                                                                Cancel
+                                                            </button>
+                                                            <button
+                                                                onClick={() =>
+                                                                    saveEdit(
+                                                                        feed.id,
+                                                                    )
+                                                                }
+                                                                className="px-3 py-1.5 text-xs text-white bg-[#2563EB] hover:bg-[#1d4ed8] rounded-lg"
+                                                            >
+                                                                Save Changes
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                ) : // --- MODE TAMPILAN BIASA ---
+                                                feed.type === "system" ? (
+                                                    <div
+                                                        className="p-3 bg-orange-50 border border-orange-100 rounded-lg text-sm text-orange-800"
+                                                        dangerouslySetInnerHTML={{
+                                                            __html: feed.content,
+                                                        }}
+                                                    ></div>
+                                                ) : (
+                                                    <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
+                                                        {feed.content && (
+                                                            <p className="text-sm text-[#4A5565] whitespace-pre-wrap leading-relaxed">
+                                                                {feed.content}
+                                                            </p>
+                                                        )}
+                                                        {feed.media && (
+                                                            <div className="mt-3 w-full rounded-lg overflow-hidden border border-gray-100">
+                                                                <img
+                                                                    src={
+                                                                        feed.media
+                                                                    }
+                                                                    alt="Attachment"
+                                                                    className="w-full h-auto object-cover"
+                                                                />
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        ))
+                                    ) : (
+                                        <div className="text-center py-8">
+                                            <p className="text-sm text-[#99A1AF] italic">
+                                                No updates yet.
+                                            </p>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         </div>
 
-                        {/* KOLOM KANAN (1/3): Sidebar Info */}
                         <div className="lg:col-span-1 space-y-6">
                             <div className="bg-white rounded-2xl border border-[#E5E7EB] shadow-sm p-6 h-fit">
                                 <h3 className="text-[#101828] text-sm font-bold uppercase tracking-wider mb-6 border-b border-gray-100 pb-4">
@@ -370,7 +505,6 @@ export default function ProjectDetails({ auth, project }) {
                                 </h3>
 
                                 <div className="space-y-6">
-                                    {/* Client Info */}
                                     <div>
                                         <label className="text-xs text-[#6A7282] block mb-1">
                                             Client
@@ -396,7 +530,6 @@ export default function ProjectDetails({ auth, project }) {
                                         </div>
                                     </div>
 
-                                    {/* Date */}
                                     <div>
                                         <label className="text-xs text-[#6A7282] block mb-1">
                                             Start Date
@@ -407,7 +540,6 @@ export default function ProjectDetails({ auth, project }) {
                                         </div>
                                     </div>
 
-                                    {/* Description */}
                                     <div>
                                         <label className="text-xs text-[#6A7282] block mb-1">
                                             Description
@@ -417,21 +549,6 @@ export default function ProjectDetails({ auth, project }) {
                                                 {project.description ||
                                                     "No description provided."}
                                             </p>
-                                        </div>
-                                    </div>
-
-                                    {/* Members (Dummy dulu) */}
-                                    <div>
-                                        <label className="text-xs text-[#6A7282] block mb-2">
-                                            Team Members
-                                        </label>
-                                        <div className="flex -space-x-2 overflow-hidden">
-                                            <div className="inline-block h-8 w-8 rounded-full ring-2 ring-white bg-slate-200 flex items-center justify-center text-xs font-bold text-slate-600">
-                                                AD
-                                            </div>
-                                            <div className="inline-block h-8 w-8 rounded-full ring-2 ring-white bg-gray-100 flex items-center justify-center text-xs text-gray-400">
-                                                +
-                                            </div>
                                         </div>
                                     </div>
                                 </div>

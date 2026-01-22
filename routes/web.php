@@ -36,6 +36,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/admin/projects/{project}', [ProjectController::class, 'show'])->name('admin.projects.show');
     Route::patch('/admin/projects/{project}', [ProjectController::class, 'update'])->name('admin.projects.update');
 
+    Route::post('/admin/projects/{project}/feed', [ProjectController::class, 'storeFeed'])->name('admin.projects.feed.store');
+    Route::delete('/admin/feeds/{feed}', [ProjectController::class, 'destroyFeed'])->name('admin.feeds.destroy');
+    Route::patch('/admin/feeds/{feed}', [ProjectController::class, 'updateFeed'])->name('admin.feeds.update');
+
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');

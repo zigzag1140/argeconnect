@@ -8,7 +8,8 @@ import {
     FolderKanban,
     AlertCircle,
     CheckCircle2,
-    Clock,
+    MessageSquare,
+    Info,
 } from "lucide-react";
 
 export default function Dashboard({
@@ -16,7 +17,7 @@ export default function Dashboard({
     totalProjects,
     activeProjects,
     totalClients,
-    recentProjects,
+    recentActivities,
 }) {
     return (
         <div className="flex h-screen bg-[#F9FAFB] font-sans">
@@ -178,44 +179,79 @@ export default function Dashboard({
                                 href={route("admin.projects")}
                                 className="text-[#2563EB] text-sm font-medium hover:underline"
                             >
-                                View All
+                                View Projects
                             </Link>
                         </div>
 
                         <div className="space-y-2">
-                            {recentProjects.length > 0 ? (
-                                recentProjects.map((project) => (
+                            {recentActivities.length > 0 ? (
+                                recentActivities.map((activity) => (
                                     <div
-                                        key={project.id}
-                                        className="flex flex-col sm:flex-row gap-4 p-4 rounded-xl hover:bg-gray-50 transition-colors border border-transparent hover:border-gray-100"
+                                        key={activity.id}
+                                        className="flex flex-col sm:flex-row gap-4 p-4 rounded-xl hover:bg-gray-50 transition-colors border border-transparent hover:border-gray-100 items-start sm:items-center"
                                     >
-                                        <div className="w-10 h-10 rounded-full bg-[#DBEAFE] flex items-center justify-center shrink-0">
-                                            <FolderOpen className="w-5 h-5 text-[#2563EB]" />
+                                        <div
+                                            className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 
+                                            ${
+                                                activity.type === "system"
+                                                    ? "bg-orange-100 text-orange-600"
+                                                    : "bg-blue-100 text-[#2563EB]"
+                                            }`}
+                                        >
+                                            {activity.type === "system" ? (
+                                                <Info size={20} />
+                                            ) : (
+                                                <MessageSquare size={20} />
+                                            )}
                                         </div>
-                                        <div className="flex-1">
+
+                                        <div className="flex-1 min-w-0">
                                             <div className="flex items-center gap-2 mb-1 flex-wrap">
-                                                <span className="text-[#101828] font-medium">
-                                                    {project.client}
+                                                <span className="text-[#101828] font-bold">
+                                                    {activity.user_name}
                                                 </span>
                                                 <span className="text-[#99A1AF] hidden sm:inline">
                                                     •
                                                 </span>
-                                                <span className="text-[#2563EB] text-sm font-medium cursor-pointer hover:underline">
-                                                    {project.title}
-                                                </span>
+                                                {/* INI BAGIAN YANG DIUBAH MENJADI LINK */}
+                                                {activity.project_id ? (
+                                                    <Link
+                                                        href={route(
+                                                            "admin.projects.show",
+                                                            activity.project_id,
+                                                        )}
+                                                        className="text-[#2563EB] text-sm font-medium truncate hover:underline"
+                                                    >
+                                                        {activity.project_title}
+                                                    </Link>
+                                                ) : (
+                                                    <span className="text-[#2563EB] text-sm font-medium truncate">
+                                                        {activity.project_title}
+                                                    </span>
+                                                )}
                                             </div>
-                                            <p className="text-[#4A5565] text-sm mb-1">
-                                                Project Status: {project.status}
+                                            <p className="text-[#4A5565] text-sm mb-1 truncate">
+                                                <span
+                                                    className={
+                                                        activity.type ===
+                                                        "system"
+                                                            ? "text-gray-500"
+                                                            : ""
+                                                    }
+                                                >
+                                                    {activity.description}
+                                                </span>
                                             </p>
                                             <span className="text-[#6A7282] text-xs">
-                                                {project.date}
+                                                {activity.action_type} •{" "}
+                                                {activity.time}
                                             </span>
                                         </div>
                                     </div>
                                 ))
                             ) : (
-                                <p className="text-gray-500 text-sm">
-                                    No recent activity.
+                                <p className="text-gray-500 text-sm text-center py-8">
+                                    No recent activity found.
                                 </p>
                             )}
                         </div>

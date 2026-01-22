@@ -10,8 +10,10 @@ class Feed extends Model
     use HasFactory;
 
     protected $fillable = [
-        'project_id', 
-        'content', 
+        'project_id',
+        'user_id',
+        'content',
+        'media_path',
         'type', 
     ];
 
@@ -20,8 +22,8 @@ class Feed extends Model
         return $this->belongsTo(Project::class);
     }
 
-    public function comments()
+    public function user()
     {
-        return $this->hasMany(Comment::class);
+        return $this->belongsTo(User::class);
     }
 }
