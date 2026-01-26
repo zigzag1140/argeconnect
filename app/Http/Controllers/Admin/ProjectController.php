@@ -53,25 +53,24 @@ class ProjectController extends Controller
     {
         $validated = $request->validate([
             'title' => 'required|string|max:255',
-            'client_id' => 'required|exists:users,id', 
             'description' => 'nullable|string',
             'status' => 'required|string',
             'progress' => 'required|integer|min:0|max:100',
         ]);
 
-        $project = Project::create([
+        $token = Str::random(10);
+
+        Project::create([
             'title' => $validated['title'],
             'description' => $validated['description'],
             'status' => $validated['status'],
             'progress' => $validated['progress'],
-            'access_token' => Str::random(10), 
+            'access_token' => $token, 
         ]);
 
-        $project->users()->attach($validated['client_id']);
-
-        return redirect()->route('admin.projects')->with('success', 'Project created successfully!');
+        return redirect()->route('admin.projects')
+            ->with('success', 'Project created successfully! Share this Access Token to client: ' . $token);
     }
-
    public function show(Project $project)
     {
         $project->load(['users']);
@@ -98,6 +97,7 @@ class ProjectController extends Controller
                 'description' => $project->description,
                 'status' => $project->status,
                 'progress' => $project->progress,
+                'access_token' => $project->access_token,
                 'client' => $project->users->first() ? $project->users->first() : null,
                 'created_at' => $project->created_at->format('d M Y'),
             ],

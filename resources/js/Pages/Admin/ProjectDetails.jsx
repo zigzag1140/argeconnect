@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import { Head, Link, useForm, router } from "@inertiajs/react";
 import {
     LayoutDashboard,
@@ -17,10 +17,12 @@ import {
     Info,
     Trash2,
     Pencil,
+    Copy,
+    Check,
+    Key,
 } from "lucide-react";
 
 export default function ProjectDetails({ auth, project, feeds }) {
-    // --- STATE UTAMA ---
     const {
         data: controlsData,
         setData: setControlsData,
@@ -42,13 +44,12 @@ export default function ProjectDetails({ auth, project, feeds }) {
         media: null,
     });
 
-    // --- STATE EDITING FEED ---
     const [editingId, setEditingId] = useState(null);
     const [editContent, setEditContent] = useState("");
+    const [copied, setCopied] = useState(false);
 
     const fileInputRef = useRef(null);
 
-    // --- HANDLERS ---
     const handleUpdate = (e) => {
         e.preventDefault();
         patch(route("admin.projects.update", project.id));
@@ -68,20 +69,17 @@ export default function ProjectDetails({ auth, project, feeds }) {
         setFeedData("media", e.target.files[0]);
     };
 
-    // Fungsi Hapus Feed
     const handleDeleteFeed = (feedId) => {
         if (confirm("Are you sure you want to delete this update?")) {
             router.delete(route("admin.feeds.destroy", feedId));
         }
     };
 
-    // Fungsi Mulai Edit
     const startEditing = (feed) => {
         setEditingId(feed.id);
         setEditContent(feed.content);
     };
 
-    // Fungsi Simpan Edit
     const saveEdit = (feedId) => {
         router.patch(
             route("admin.feeds.update", feedId),
@@ -92,6 +90,12 @@ export default function ProjectDetails({ auth, project, feeds }) {
                 onSuccess: () => setEditingId(null),
             },
         );
+    };
+
+    const copyToken = () => {
+        navigator.clipboard.writeText(project.access_token);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
     };
 
     return (
@@ -389,7 +393,6 @@ export default function ProjectDetails({ auth, project, feeds }) {
                                                         </span>
                                                     </div>
 
-                                                    {/* TOMBOL EDIT/DELETE */}
                                                     <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                                                         {feed.type !==
                                                             "system" && (
@@ -422,7 +425,6 @@ export default function ProjectDetails({ auth, project, feeds }) {
                                                 </div>
 
                                                 {editingId === feed.id ? (
-                                                    // --- MODE EDIT ---
                                                     <div className="bg-white border border-[#2563EB] rounded-xl p-4 shadow-sm">
                                                         <textarea
                                                             value={editContent}
@@ -457,8 +459,7 @@ export default function ProjectDetails({ auth, project, feeds }) {
                                                             </button>
                                                         </div>
                                                     </div>
-                                                ) : // --- MODE TAMPILAN BIASA ---
-                                                feed.type === "system" ? (
+                                                ) : feed.type === "system" ? (
                                                     <div
                                                         className="p-3 bg-orange-50 border border-orange-100 rounded-lg text-sm text-orange-800"
                                                         dangerouslySetInnerHTML={{
@@ -506,28 +507,62 @@ export default function ProjectDetails({ auth, project, feeds }) {
 
                                 <div className="space-y-6">
                                     <div>
-                                        <label className="text-xs text-[#6A7282] block mb-1">
-                                            Client
+                                        <label className="text-xs text-[#6A7282] block mb-2">
+                                            Client Access
                                         </label>
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-8 h-8 rounded-full bg-gradient-to-b from-[#2563EB] to-[#1D4ED8] flex items-center justify-center text-white text-xs font-bold">
-                                                {project.client
-                                                    ? project.client.name
-                                                          .substring(0, 2)
-                                                          .toUpperCase()
-                                                    : "NA"}
+
+                                        {project.client ? (
+                                            <div className="flex items-center gap-3 p-3 bg-green-50 rounded-lg border border-green-100">
+                                                <div className="w-8 h-8 rounded-full bg-gradient-to-b from-[#00C950] to-[#008236] flex items-center justify-center text-white text-xs font-bold">
+                                                    {project.client.name
+                                                        .substring(0, 2)
+                                                        .toUpperCase()}
+                                                </div>
+                                                <div className="overflow-hidden">
+                                                    <p className="text-sm font-bold text-[#008236] truncate">
+                                                        {project.client.name}
+                                                    </p>
+                                                    <div className="flex items-center gap-1 text-xs text-green-700">
+                                                        <Check
+                                                            size={12}
+                                                            strokeWidth={3}
+                                                        />
+                                                        <span>Connected</span>
+                                                    </div>
+                                                </div>
                                             </div>
-                                            <div>
-                                                <p className="text-sm font-medium text-[#101828]">
-                                                    {project.client
-                                                        ? project.client.name
-                                                        : "Unassigned"}
+                                        ) : (
+                                            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                                                <div className="flex items-center gap-2 mb-2 text-yellow-800 text-xs font-semibold">
+                                                    <Key size={14} />
+                                                    <span>
+                                                        Unassigned (Waiting for
+                                                        Client)
+                                                    </span>
+                                                </div>
+                                                <p className="text-xs text-yellow-700 mb-2">
+                                                    Share this token with your
+                                                    client:
                                                 </p>
-                                                <p className="text-xs text-[#6A7282]">
-                                                    Active Client
-                                                </p>
+
+                                                <div className="flex items-center gap-2">
+                                                    <code className="flex-1 bg-white border border-yellow-200 text-yellow-900 font-mono font-bold text-sm px-3 py-2 rounded text-center tracking-widest">
+                                                        {project.access_token}
+                                                    </code>
+                                                    <button
+                                                        onClick={copyToken}
+                                                        className="p-2 bg-white border border-yellow-200 rounded hover:bg-yellow-100 text-yellow-700 transition-colors"
+                                                        title="Copy Token"
+                                                    >
+                                                        {copied ? (
+                                                            <Check size={16} />
+                                                        ) : (
+                                                            <Copy size={16} />
+                                                        )}
+                                                    </button>
+                                                </div>
                                             </div>
-                                        </div>
+                                        )}
                                     </div>
 
                                     <div>

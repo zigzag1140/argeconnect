@@ -9,10 +9,9 @@ import {
     Save,
 } from "lucide-react";
 
-export default function CreateProject({ auth, clients }) {
+export default function CreateProject({ auth }) {
     const { data, setData, post, processing, errors } = useForm({
         title: "",
-        client_id: "",
         description: "",
         status: "In Progress",
         progress: 0,
@@ -127,8 +126,7 @@ export default function CreateProject({ auth, clients }) {
                             Create New Project
                         </h2>
                         <p className="text-[#4A5565] text-base font-normal mt-1">
-                            Fill in the details below to initialize a new
-                            project.
+                            An access token will be generated automatically.
                         </p>
                     </div>
 
@@ -150,36 +148,6 @@ export default function CreateProject({ auth, clients }) {
                                 {errors.title && (
                                     <p className="mt-1 text-sm text-red-600">
                                         {errors.title}
-                                    </p>
-                                )}
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium text-[#344054] mb-1.5">
-                                    Assign Client
-                                </label>
-                                <select
-                                    value={data.client_id}
-                                    onChange={(e) =>
-                                        setData("client_id", e.target.value)
-                                    }
-                                    className="block w-full rounded-lg border border-[#D0D5DD] px-3.5 py-2.5 text-[#101828] shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-[#2563EB] sm:text-sm sm:leading-6 bg-white"
-                                >
-                                    <option value="" disabled>
-                                        Select a client
-                                    </option>
-                                    {clients.map((client) => (
-                                        <option
-                                            key={client.id}
-                                            value={client.id}
-                                        >
-                                            {client.name}
-                                        </option>
-                                    ))}
-                                </select>
-                                {errors.client_id && (
-                                    <p className="mt-1 text-sm text-red-600">
-                                        {errors.client_id}
                                     </p>
                                 )}
                             </div>
@@ -256,7 +224,7 @@ export default function CreateProject({ auth, clients }) {
                                     <Save className="w-4 h-4" />
                                     {processing
                                         ? "Creating..."
-                                        : "Create Project"}
+                                        : "Create & Generate Token"}
                                 </button>
                             </div>
                         </form>
