@@ -4,6 +4,8 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Admin\ProjectController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\PriorityFeedController;
+use App\Http\Controllers\Client\DashboardController as ClientDashboardController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -18,31 +20,52 @@ Route::get('/', function () {
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    
+
     Route::get('/admin/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-    Route::get('/admin/projects', [ProjectController::class, 'index'])->name('admin.projects');
-    Route::get('/admin/projects/create', [ProjectController::class, 'create'])->name('admin.projects.create');
-    Route::post('/admin/projects', [ProjectController::class, 'store'])->name('admin.projects.store');
+    Route::prefix('admin')->name('admin.')->group(function () {
+        
+        Route::controller(ProjectController::class)->group(function () {
+            Route::get('/projects', 'index')->name('projects');
+            Route::get('/projects/create', 'create')->name('projects.create');
+            Route::post('/projects', 'store')->name('projects.store');
+            Route::get('/projects/{project}', 'show')->name('projects.show');
+            Route::patch('/projects/{project}', 'update')->name('projects.update');
+            
+            Route::post('/projects/{project}/feed', 'storeFeed')->name('projects.feed.store');
+            Route::delete('/feeds/{feed}', 'destroyFeed')->name('feeds.destroy');
+            Route::patch('/feeds/{feed}', 'updateFeed')->name('feeds.update');
+        });
 
-    Route::get('/admin/feed', function () {
-        return Inertia::render('Admin/AdminPriorityFeed'); 
-    })->name('admin.feed');
+        Route::controller(PriorityFeedController::class)->group(function () {
+            Route::get('/feed', 'index')->name('feed');
+            Route::post('/feed/{id}/resolve', 'markResolved')->name('feed.resolve');
+            Route::post('/feed/{commentId}/reply', 'storeReply')->name('feed.reply');
+        });
 
-    Route::get('/admin/users', [UserController::class, 'index'])->name('admin.users');
-    Route::patch('/admin/users/{user}', [UserController::class, 'update'])->name('admin.users.update');
-    Route::delete('/admin/users/{user}', [UserController::class, 'destroy'])->name('admin.users.destroy');
+        Route::controller(UserController::class)->group(function () {
+            Route::get('/users', 'index')->name('users');
+            Route::patch('/users/{user}', 'update')->name('users.update');
+            Route::delete('/users/{user}', 'destroy')->name('users.destroy');
+        });
+    });
 
-    Route::get('/admin/projects/{project}', [ProjectController::class, 'show'])->name('admin.projects.show');
-    Route::patch('/admin/projects/{project}', [ProjectController::class, 'update'])->name('admin.projects.update');
+    Route::prefix('client')->name('client.')->controller(ClientDashboardController::class)->group(function () {
+        Route::get('/dashboard', 'index')->name('dashboard');
+        Route::post('/join', 'joinProject')->name('project.join');
+        
+        Route::post('/feed/{feed}/approve', 'approveFeed')->name('feed.approve');
+        Route::post('/feed/{feed}/comment', 'storeComment')->name('feed.comment.store');
+        
+        Route::post('/comment/{comment}/update', 'updateComment')->name('comment.update');
+        Route::delete('/comment/{comment}', 'destroyComment')->name('comment.destroy');
+    });
 
-    Route::post('/admin/projects/{project}/feed', [ProjectController::class, 'storeFeed'])->name('admin.projects.feed.store');
-    Route::delete('/admin/feeds/{feed}', [ProjectController::class, 'destroyFeed'])->name('admin.feeds.destroy');
-    Route::patch('/admin/feeds/{feed}', [ProjectController::class, 'updateFeed'])->name('admin.feeds.update');
-
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::controller(ProfileController::class)->group(function () {
+        Route::get('/profile', 'edit')->name('profile.edit');
+        Route::patch('/profile', 'update')->name('profile.update');
+        Route::delete('/profile', 'destroy')->name('profile.destroy');
+    });
 });
 
 require __DIR__.'/auth.php';

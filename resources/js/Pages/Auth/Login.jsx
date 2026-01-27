@@ -85,6 +85,12 @@ export default function Login({ status, canResetPassword }) {
                         </p>
                     </div>
 
+                    {status && (
+                        <div className="mb-4 font-medium text-sm text-green-600 p-3 bg-green-50 rounded-lg border border-green-200">
+                            {status}
+                        </div>
+                    )}
+
                     <form onSubmit={submit} className="space-y-6">
                         <div>
                             <label className="block text-[#364153] text-sm font-normal leading-5 mb-2 font-sans">

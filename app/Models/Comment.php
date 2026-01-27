@@ -13,6 +13,7 @@ class Comment extends Model
         'feed_id', 
         'user_id', 
         'content', 
+        'media_path',
         'priority', 
         'is_resolved', 
     ];

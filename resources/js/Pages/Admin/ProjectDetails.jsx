@@ -1,11 +1,7 @@
 import { useState, useRef } from "react";
 import { Head, Link, useForm, router } from "@inertiajs/react";
+import AdminSidebar from "@/Components/Admin/AdminSidebar";
 import {
-    LayoutDashboard,
-    FolderOpen,
-    Zap,
-    Users,
-    Bell,
     ArrowLeft,
     Save,
     Calendar,
@@ -47,7 +43,6 @@ export default function ProjectDetails({ auth, project, feeds }) {
     const [editingId, setEditingId] = useState(null);
     const [editContent, setEditContent] = useState("");
     const [copied, setCopied] = useState(false);
-
     const fileInputRef = useRef(null);
 
     const handleUpdate = (e) => {
@@ -83,9 +78,7 @@ export default function ProjectDetails({ auth, project, feeds }) {
     const saveEdit = (feedId) => {
         router.patch(
             route("admin.feeds.update", feedId),
-            {
-                content: editContent,
-            },
+            { content: editContent },
             {
                 onSuccess: () => setEditingId(null),
             },
@@ -102,91 +95,7 @@ export default function ProjectDetails({ auth, project, feeds }) {
         <div className="flex h-screen bg-[#F9FAFB] font-sans">
             <Head title={`${project.title} - Details`} />
 
-            <aside className="w-64 bg-white border-r border-[#E5E7EB] flex flex-col fixed inset-y-0 left-0 z-10">
-                <div className="h-20 flex items-center px-6 border-b border-[#E5E7EB]">
-                    <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 flex items-center justify-center">
-                            <img
-                                src="/images/logo.png"
-                                alt="Logo"
-                                className="w-full h-full object-contain"
-                            />
-                        </div>
-                        <div className="flex flex-col">
-                            <h1 className="text-[#101828] text-lg font-bold leading-tight">
-                                argeconnect
-                            </h1>
-                            <span className="text-[#6A7282] text-xs font-normal">
-                                Admin Portal
-                            </span>
-                        </div>
-                    </div>
-                </div>
-
-                <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
-                    <Link
-                        href={route("dashboard")}
-                        className="flex items-center gap-3 px-4 py-3 text-[#364153] hover:bg-gray-50 rounded-[10px] transition-colors"
-                    >
-                        <LayoutDashboard className="w-5 h-5" />
-                        <span className="text-base font-normal">
-                            Dashboard Overview
-                        </span>
-                    </Link>
-
-                    <Link
-                        href={route("admin.projects")}
-                        className="flex items-center gap-3 px-4 py-3 bg-[#2563EB] text-white rounded-[10px] shadow-sm transition-colors"
-                    >
-                        <FolderOpen className="w-5 h-5" />
-                        <span className="text-base font-normal">
-                            All Projects
-                        </span>
-                    </Link>
-
-                    <Link
-                        href={route("admin.feed")}
-                        className="flex items-center justify-between px-4 py-3 text-[#364153] hover:bg-gray-50 rounded-[10px] transition-colors"
-                    >
-                        <div className="flex items-center gap-3">
-                            <Zap className="w-5 h-5" />
-                            <span className="text-base font-normal">
-                                Priority Feed
-                            </span>
-                        </div>
-                        <span className="bg-[#EF4444] text-white text-xs font-bold px-2 py-0.5 rounded-full min-w-[20px] text-center">
-                            5
-                        </span>
-                    </Link>
-
-                    <Link
-                        href={route("admin.users")}
-                        className="flex items-center gap-3 px-4 py-3 text-[#364153] hover:bg-gray-50 rounded-[10px] transition-colors"
-                    >
-                        <Users className="w-5 h-5" />
-                        <span className="text-base font-normal">
-                            User Management
-                        </span>
-                    </Link>
-                </nav>
-
-                <div className="p-4 border-t border-[#E5E7EB]">
-                    <div className="flex items-center gap-3 p-3 rounded-[10px] hover:bg-gray-50 transition-colors">
-                        <div className="w-10 h-10 rounded-full bg-gradient-to-b from-[#2563EB] to-[#1D4ED8] flex items-center justify-center text-white font-bold text-sm shrink-0">
-                            AD
-                        </div>
-                        <div className="flex-1 min-w-0">
-                            <p className="text-[#101828] text-sm font-medium truncate">
-                                Admin User
-                            </p>
-                            <p className="text-[#6A7282] text-xs font-normal truncate">
-                                Developer
-                            </p>
-                        </div>
-                        <Bell className="w-5 h-5 text-[#99A1AF]" />
-                    </div>
-                </div>
-            </aside>
+            <AdminSidebar activePage="projects" />
 
             <main className="flex-1 ml-64 p-8 overflow-y-auto min-h-screen">
                 <div className="w-full max-w-6xl mx-auto">
@@ -486,6 +395,69 @@ export default function ProjectDetails({ auth, project, feeds }) {
                                                         )}
                                                     </div>
                                                 )}
+
+                                                {feed.comments &&
+                                                    feed.comments.length >
+                                                        0 && (
+                                                        <div className="bg-gray-50 rounded-xl p-3 border border-gray-100 space-y-3 mt-4">
+                                                            <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider">
+                                                                Discussion
+                                                            </h4>
+                                                            {feed.comments.map(
+                                                                (comment) => (
+                                                                    <div
+                                                                        key={
+                                                                            comment.id
+                                                                        }
+                                                                        className="flex gap-3"
+                                                                    >
+                                                                        <div
+                                                                            className={`w-6 h-6 rounded-full flex items-center justify-center text-xs text-white font-bold shrink-0 ${comment.user_role === "Developer" ? "bg-blue-600" : "bg-green-600"}`}
+                                                                        >
+                                                                            {
+                                                                                comment.user_initials
+                                                                            }
+                                                                        </div>
+                                                                        <div className="flex-1">
+                                                                            <div className="flex items-baseline gap-2">
+                                                                                <span className="text-xs font-bold text-gray-800">
+                                                                                    {
+                                                                                        comment.user_name
+                                                                                    }
+                                                                                </span>
+                                                                                <span className="text-[10px] text-gray-500">
+                                                                                    {
+                                                                                        comment.created_at
+                                                                                    }
+                                                                                </span>
+                                                                            </div>
+                                                                            <p className="text-xs text-gray-600 mt-0.5 whitespace-pre-wrap">
+                                                                                {
+                                                                                    comment.content
+                                                                                }
+                                                                            </p>
+                                                                            {comment.media && (
+                                                                                <a
+                                                                                    href={
+                                                                                        comment.media
+                                                                                    }
+                                                                                    target="_blank"
+                                                                                    className="text-[10px] text-blue-500 underline flex items-center gap-1 mt-1"
+                                                                                >
+                                                                                    <Paperclip
+                                                                                        size={
+                                                                                            10
+                                                                                        }
+                                                                                    />{" "}
+                                                                                    Attachment
+                                                                                </a>
+                                                                            )}
+                                                                        </div>
+                                                                    </div>
+                                                                ),
+                                                            )}
+                                                        </div>
+                                                    )}
                                             </div>
                                         ))
                                     ) : (
@@ -510,7 +482,6 @@ export default function ProjectDetails({ auth, project, feeds }) {
                                         <label className="text-xs text-[#6A7282] block mb-2">
                                             Client Access
                                         </label>
-
                                         {project.client ? (
                                             <div className="flex items-center gap-3 p-3 bg-green-50 rounded-lg border border-green-100">
                                                 <div className="w-8 h-8 rounded-full bg-gradient-to-b from-[#00C950] to-[#008236] flex items-center justify-center text-white text-xs font-bold">
@@ -544,7 +515,6 @@ export default function ProjectDetails({ auth, project, feeds }) {
                                                     Share this token with your
                                                     client:
                                                 </p>
-
                                                 <div className="flex items-center gap-2">
                                                     <code className="flex-1 bg-white border border-yellow-200 text-yellow-900 font-mono font-bold text-sm px-3 py-2 rounded text-center tracking-widest">
                                                         {project.access_token}

@@ -14,7 +14,8 @@ class Feed extends Model
         'user_id',
         'content',
         'media_path',
-        'type', 
+        'type',
+        'approval_status' 
     ];
 
     public function project()
@@ -25,5 +26,8 @@ class Feed extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+    public function comments() {
+        return $this->hasMany(Comment::class);
     }
 }

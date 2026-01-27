@@ -71,24 +71,41 @@ class ProjectController extends Controller
         return redirect()->route('admin.projects')
             ->with('success', 'Project created successfully! Share this Access Token to client: ' . $token);
     }
-   public function show(Project $project)
+
+    public function show(Project $project)
     {
         $project->load(['users']);
 
-        $feeds = $project->feeds()->with('user')->latest()->get()->map(function ($feed) {
-            return [
-                'id' => $feed->id,
-                'user' => $feed->user ? [
-                    'name' => $feed->user->name,
-                    'initials' => substr($feed->user->name, 0, 2) ?? 'AD',
-                    'role' => $feed->user->role === 'admin' ? 'Developer' : 'Client',
-                ] : null,
-                'content' => $feed->content,
-                'media' => $feed->media_path ? asset('storage/' . $feed->media_path) : null,
-                'type' => $feed->type,
-                'created_at' => $feed->created_at->diffForHumans(),
-            ];
-        });
+        $feeds = $project->feeds()
+            ->with(['user', 'comments.user'])
+            ->latest()
+            ->get()
+            ->map(function ($feed) {
+                return [
+                    'id' => $feed->id,
+                    'user' => $feed->user ? [
+                        'name' => $feed->user->name,
+                        'initials' => substr($feed->user->name, 0, 2) ?? 'AD',
+                        'role' => $feed->user->role === 'admin' ? 'Developer' : 'Client',
+                    ] : null,
+                    'content' => $feed->content,
+                    'media' => $feed->media_path ? asset('storage/' . $feed->media_path) : null,
+                    'type' => $feed->type,
+                    'approval_status' => $feed->approval_status,
+                    'created_at' => $feed->created_at->diffForHumans(),
+                    'comments' => $feed->comments->map(function ($comment) {
+                        return [
+                            'id' => $comment->id,
+                            'user_name' => $comment->user->name,
+                            'user_initials' => substr($comment->user->name, 0, 2),
+                            'user_role' => $comment->user->role === 'admin' ? 'Developer' : 'Client',
+                            'content' => $comment->content,
+                            'media' => $comment->media_path ? asset('storage/' . $comment->media_path) : null,
+                            'created_at' => $comment->created_at->diffForHumans(),
+                        ];
+                    }),
+                ];
+            });
 
         return Inertia::render('Admin/ProjectDetails', [
             'project' => [
@@ -104,6 +121,7 @@ class ProjectController extends Controller
             'feeds' => $feeds, 
         ]);
     }
+
     public function update(Request $request, Project $project)
     {
         $validated = $request->validate([

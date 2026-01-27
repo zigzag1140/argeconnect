@@ -33,7 +33,17 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        return redirect()->intended(route('dashboard', absolute: false));
+        $user = $request->user();
+
+        // DEBUG SEDERHANA: Cek role user (opsional, bisa dihapus nanti)
+        // dd($user->role); 
+
+        // LOGIKA FINAL: Paksa redirect tanpa peduli history
+        if ($user->role === 'admin') {
+            return redirect()->route('dashboard'); 
+        }
+
+        return redirect()->route('client.dashboard');
     }
 
     /**
