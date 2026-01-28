@@ -411,13 +411,20 @@ export default function ProjectDetails({ auth, project, feeds }) {
                                                                         }
                                                                         className="flex gap-3"
                                                                     >
-                                                                        <div
-                                                                            className={`w-6 h-6 rounded-full flex items-center justify-center text-xs text-white font-bold shrink-0 ${comment.user_role === "Developer" ? "bg-blue-600" : "bg-green-600"}`}
-                                                                        >
-                                                                            {
-                                                                                comment.user_initials
+                                                                        {/* --- BAGIAN INI SUDAH DIPERBAIKI (PAKAI IMG) --- */}
+                                                                        <img
+                                                                            src={
+                                                                                comment.user_avatar
+                                                                                    ? `/storage/${comment.user_avatar}`
+                                                                                    : "/images/default.jpg"
                                                                             }
-                                                                        </div>
+                                                                            alt={
+                                                                                comment.user_name
+                                                                            }
+                                                                            className="w-6 h-6 rounded-full object-cover shrink-0 border border-gray-100"
+                                                                        />
+                                                                        {/* ----------------------------------------------- */}
+
                                                                         <div className="flex-1">
                                                                             <div className="flex items-baseline gap-2">
                                                                                 <span className="text-xs font-bold text-gray-800">
@@ -484,11 +491,15 @@ export default function ProjectDetails({ auth, project, feeds }) {
                                         </label>
                                         {project.client ? (
                                             <div className="flex items-center gap-3 p-3 bg-green-50 rounded-lg border border-green-100">
-                                                <div className="w-8 h-8 rounded-full bg-gradient-to-b from-[#00C950] to-[#008236] flex items-center justify-center text-white text-xs font-bold">
-                                                    {project.client.name
-                                                        .substring(0, 2)
-                                                        .toUpperCase()}
-                                                </div>
+                                                <img
+                                                    src={
+                                                        project.client.avatar
+                                                            ? `/storage/${project.client.avatar}`
+                                                            : "/images/default.jpg"
+                                                    }
+                                                    alt={project.client.name}
+                                                    className="w-8 h-8 rounded-full object-cover border border-green-200"
+                                                />
                                                 <div className="overflow-hidden">
                                                     <p className="text-sm font-bold text-[#008236] truncate">
                                                         {project.client.name}

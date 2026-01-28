@@ -3,28 +3,33 @@
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Admin\ProjectController;
 use App\Http\Controllers\Admin\UserController;
-use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\DashboardController; 
 use App\Http\Controllers\Admin\PriorityFeedController;
-use App\Http\Controllers\Client\DashboardController as ClientDashboardController;
+use App\Http\Controllers\Client\DashboardController as ClientDashboardController; 
+use App\Http\Controllers\Client\ProfileController as ClientProfileController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\Auth;
 
 Route::get('/', function () {
-    return Inertia::render('Welcome', [
-        'canLogin' => Route::has('login'),
-        'canRegister' => Route::has('register'),
-        'laravelVersion' => Application::VERSION,
-        'phpVersion' => PHP_VERSION,
-    ]);
+    return redirect()->route('login');
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {
 
-    Route::get('/admin/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard', function () {
+        if (Auth::user()->role === 'admin') {
+            return redirect()->route('admin.dashboard');
+        }
+        return redirect()->route('client.dashboard');
+    })->name('dashboard');
 
-    Route::prefix('admin')->name('admin.')->group(function () {
+
+    Route::middleware('admin')->prefix('admin')->name('admin.')->group(function () {
         
+        Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
         Route::controller(ProjectController::class)->group(function () {
             Route::get('/projects', 'index')->name('projects');
             Route::get('/projects/create', 'create')->name('projects.create');
@@ -50,15 +55,23 @@ Route::middleware(['auth', 'verified'])->group(function () {
         });
     });
 
-    Route::prefix('client')->name('client.')->controller(ClientDashboardController::class)->group(function () {
-        Route::get('/dashboard', 'index')->name('dashboard');
-        Route::post('/join', 'joinProject')->name('project.join');
+
+    Route::prefix('client')->name('client.')->group(function () {
         
-        Route::post('/feed/{feed}/approve', 'approveFeed')->name('feed.approve');
-        Route::post('/feed/{feed}/comment', 'storeComment')->name('feed.comment.store');
-        
-        Route::post('/comment/{comment}/update', 'updateComment')->name('comment.update');
-        Route::delete('/comment/{comment}', 'destroyComment')->name('comment.destroy');
+        Route::controller(ClientDashboardController::class)->group(function () {
+            Route::get('/dashboard', 'index')->name('dashboard');
+            Route::post('/join', 'joinProject')->name('project.join');
+            Route::post('/feed/{feed}/approve', 'approveFeed')->name('feed.approve');
+            Route::post('/feed/{feed}/comment', 'storeComment')->name('feed.comment.store');
+            Route::post('/comment/{comment}/update', 'updateComment')->name('comment.update');
+            Route::delete('/comment/{comment}', 'destroyComment')->name('comment.destroy');
+        });
+
+        Route::controller(ClientProfileController::class)->group(function () {
+            Route::get('/profile', 'index')->name('profile');
+            Route::post('/profile', 'update')->name('profile.update');
+        });
+
     });
 
     Route::controller(ProfileController::class)->group(function () {

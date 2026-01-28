@@ -3,7 +3,7 @@ from transformers import pipeline
 
 app = Flask(__name__)
 
-print("Sedang memuat model IndoBERT (ayameRushia)... (Download +/- 400MB)")
+print("Sedang memuat model IndoBERT (ayameRushia)")
 
 model_name = "ayameRushia/bert-base-indonesian-1.5G-sentiment-analysis-smsa"
 

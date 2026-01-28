@@ -15,15 +15,15 @@ class UserController extends Controller
 
         $clients = $usersDB->map(function ($user) {
             $project = $user->projects->first();
-            
             $hasProject = $user->projects->count() > 0;
 
             return [
                 'id' => $user->id,
                 'name' => $user->name,
                 'email' => $user->email,
-                'role' => $user->role,   
+                'role' => $user->role,
                 'initials' => $user->initials ?? substr($user->name, 0, 2),
+                'avatar' => $user->avatar, 
                 'project' => $project ? $project->title : 'No Active Project',
                 'status' => $hasProject ? 'Active Access' : 'Inactive',
             ];
@@ -39,9 +39,7 @@ class UserController extends Controller
         $validated = $request->validate([
             'role' => 'required|in:admin,client',
         ]);
-
         $user->update(['role' => $validated['role']]);
-
         return redirect()->back()->with('success', 'User role updated successfully');
     }
 

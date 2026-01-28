@@ -103,15 +103,21 @@ export default function Dashboard({
                                         key={activity.id}
                                         className="flex flex-col sm:flex-row gap-4 p-4 rounded-xl hover:bg-gray-50 transition-colors border border-transparent hover:border-gray-100 items-start sm:items-center"
                                     >
-                                        <div
-                                            className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${activity.type === "system" ? "bg-orange-100 text-orange-600" : "bg-blue-100 text-[#2563EB]"}`}
-                                        >
-                                            {activity.type === "system" ? (
+                                        {activity.type === "system" ? (
+                                            <div className="w-10 h-10 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center shrink-0">
                                                 <Info size={20} />
-                                            ) : (
-                                                <MessageSquare size={20} />
-                                            )}
-                                        </div>
+                                            </div>
+                                        ) : (
+                                            <img
+                                                src={
+                                                    activity.user_avatar
+                                                        ? `/storage/${activity.user_avatar}`
+                                                        : "/images/default-avatar.png"
+                                                }
+                                                alt={activity.user_name}
+                                                className="w-10 h-10 rounded-full object-cover border border-gray-200 shrink-0 bg-gray-100"
+                                            />
+                                        )}
 
                                         <div className="flex-1 min-w-0">
                                             <div className="flex items-center gap-2 mb-1 flex-wrap">

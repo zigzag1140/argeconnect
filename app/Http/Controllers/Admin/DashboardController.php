@@ -24,6 +24,7 @@ class DashboardController extends Controller
                 $isComment = $item instanceof Comment;
                 
                 $userName = $item->user ? $item->user->name : 'System';
+                $userAvatar = $item->user ? $item->user->avatar : null;
                 
                 $project = $isComment ? ($item->feed->project ?? null) : ($item->project ?? null);
                 $projectTitle = $project ? $project->title : 'Deleted Project';
@@ -55,6 +56,7 @@ class DashboardController extends Controller
                 return [
                     'id' => $item->id,
                     'user_name' => $userName,
+                    'user_avatar' => $userAvatar,
                     'project_title' => $projectTitle,
                     'project_id' => $projectId,
                     'description' => $description,

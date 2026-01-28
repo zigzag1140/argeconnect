@@ -1,5 +1,6 @@
 import { useState, useRef } from "react";
 import { useForm, router } from "@inertiajs/react";
+import Swal from "sweetalert2";
 import {
     CheckCircle2,
     MessageSquare,
@@ -7,10 +8,10 @@ import {
     Send,
     Paperclip,
     X,
-    MoreHorizontal,
     Trash2,
     Pencil,
     FileImage,
+    Info,
 } from "lucide-react";
 
 export default function ProjectDashboard({ project, feeds }) {
@@ -81,9 +82,33 @@ function FeedItem({ feed }) {
     const fileInputRef = useRef(null);
 
     const handleApprove = () => {
-        if (confirm("Approve this update?")) {
-            router.post(route("client.feed.approve", feed.id));
-        }
+        Swal.fire({
+            title: "Approve this update?",
+            text: "This confirms that you are satisfied with this progress report.",
+            icon: "question",
+            showCancelButton: true,
+            confirmButtonColor: "#00C950",
+            cancelButtonColor: "#6B7280",
+            confirmButtonText: "Yes, Approve it!",
+        }).then((result) => {
+            if (result.isConfirmed) {
+                router.post(
+                    route("client.feed.approve", feed.id),
+                    {},
+                    {
+                        onSuccess: () => {
+                            Swal.fire({
+                                title: "Approved!",
+                                text: "Thank you for your feedback.",
+                                icon: "success",
+                                timer: 1500,
+                                showConfirmButton: false,
+                            });
+                        },
+                    },
+                );
+            }
+        });
     };
 
     const handleSubmitComment = (e) => {
@@ -92,6 +117,12 @@ function FeedItem({ feed }) {
             onSuccess: () => {
                 reset();
                 setShowCommentForm(false);
+                Swal.fire({
+                    icon: "success",
+                    title: "Feedback Sent",
+                    showConfirmButton: false,
+                    timer: 1500,
+                });
             },
         });
     };
@@ -100,12 +131,22 @@ function FeedItem({ feed }) {
         <div className="bg-white rounded-2xl border border-[#E5E7EB] shadow-sm p-6">
             <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center gap-3">
-                    <div
-                        className={`w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-sm
-                        ${feed.type === "system" ? "bg-orange-500" : "bg-gradient-to-b from-[#2563EB] to-[#1D4ED8]"}`}
-                    >
-                        {feed.type === "system" ? "Sy" : feed.user_initials}
-                    </div>
+                    {feed.type === "system" ? (
+                        <div className="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-sm bg-orange-500">
+                            <Info size={24} />
+                        </div>
+                    ) : (
+                        <img
+                            src={
+                                feed.user_avatar
+                                    ? `/storage/${feed.user_avatar}`
+                                    : "/images/avatar.jpg"
+                            }
+                            alt={feed.user_name}
+                            className="w-12 h-12 rounded-full object-cover shadow-sm border border-gray-200"
+                        />
+                    )}
+
                     <div>
                         <h3 className="text-[#101828] font-bold text-base">
                             {feed.type === "system"
@@ -126,7 +167,9 @@ function FeedItem({ feed }) {
                 {feed.type === "system" ? (
                     <div
                         className="p-4 bg-orange-50 border border-orange-100 rounded-xl text-orange-900 text-sm"
-                        dangerouslySetInnerHTML={{ __html: feed.content }}
+                        dangerouslySetInnerHTML={{
+                            __html: feed.content.replace(/\*\*/g, ""),
+                        }}
                     ></div>
                 ) : (
                     <div>
@@ -238,7 +281,7 @@ function FeedItem({ feed }) {
                         <h5 className="text-xs font-bold text-gray-400 uppercase tracking-wider">
                             Discussion History
                         </h5>
-                        {feed.comments.map((comment) => (
+                        {[...feed.comments].reverse().map((comment) => (
                             <CommentItem key={comment.id} comment={comment} />
                         ))}
                     </div>
@@ -252,12 +295,33 @@ function CommentItem({ comment }) {
     const [isEditing, setIsEditing] = useState(false);
     const { data, setData, post, processing } = useForm({
         content: comment.content,
-        _method: "POST", 
+        _method: "POST",
     });
 
     const handleDelete = () => {
-        if (confirm("Delete this comment?"))
-            router.delete(route("client.comment.destroy", comment.id));
+        Swal.fire({
+            title: "Delete this comment?",
+            text: "You won't be able to revert this!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#EF4444",
+            cancelButtonColor: "#6B7280",
+            confirmButtonText: "Yes, delete it!",
+        }).then((result) => {
+            if (result.isConfirmed) {
+                router.delete(route("client.comment.destroy", comment.id), {
+                    onSuccess: () => {
+                        Swal.fire({
+                            title: "Deleted!",
+                            text: "Your comment has been deleted.",
+                            icon: "success",
+                            timer: 1500,
+                            showConfirmButton: false,
+                        });
+                    },
+                });
+            }
+        });
     };
 
     const handleUpdate = (e) => {
@@ -280,9 +344,16 @@ function CommentItem({ comment }) {
         >
             <div className="flex justify-between items-start mb-2">
                 <div className="flex items-center gap-2">
-                    <div className="w-6 h-6 rounded-full bg-gray-300 flex items-center justify-center text-xs font-bold text-white">
-                        {comment.user_initials}
-                    </div>
+                    <img
+                        src={
+                            comment.user_avatar
+                                ? `/storage/${comment.user_avatar}`
+                                : "/images/avatar.jpg"
+                        }
+                        alt={comment.user_name}
+                        className="w-6 h-6 rounded-full object-cover border border-gray-200"
+                    />
+
                     <span className="font-bold text-sm text-gray-800">
                         {comment.user_name}
                     </span>

@@ -7,6 +7,7 @@ use App\Models\Comment;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Auth;
 
 class PriorityFeedController extends Controller
 {
@@ -27,6 +28,7 @@ class PriorityFeedController extends Controller
             return [
                 'id' => $comment->id,
                 'user' => $comment->user->name,
+                'user_avatar' => $comment->user->avatar,
                 'initials' => substr($comment->user->name, 0, 2),
                 'role' => 'Client',
                 'project' => $comment->feed->project->title ?? 'Unknown Project',
@@ -89,7 +91,7 @@ class PriorityFeedController extends Controller
 
         Comment::create([
             'feed_id' => $clientComment->feed_id,
-            'user_id' => \Illuminate\Support\Facades\Auth::id(),
+            'user_id' => Auth::id(),
             'content' => $request->content,
             'media_path' => $path, 
         ]);

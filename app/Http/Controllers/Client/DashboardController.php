@@ -30,6 +30,7 @@ class DashboardController extends Controller
                     'id' => $feed->id,
                     'user_initials' => $feed->user ? substr($feed->user->name, 0, 2) : 'SY',
                     'user_name' => $feed->user ? $feed->user->name : 'System',
+                    'user_avatar' => $feed->user ? $feed->user->avatar : null,
                     'user_role' => $feed->user && $feed->user->role === 'admin' ? 'Developer' : 'Client',
                     'content' => $feed->content,
                     'media' => $feed->media_path ? asset('storage/' . $feed->media_path) : null,
@@ -42,9 +43,11 @@ class DashboardController extends Controller
                             'id' => $comment->id,
                             'user_name' => $comment->user->name,
                             'user_initials' => substr($comment->user->name, 0, 2),
+                            'user_avatar' => $comment->user->avatar,
+                            'user_role' => $comment->user->role === 'admin' ? 'Developer' : 'Client',
                             'content' => $comment->content,
                             'media' => $comment->media_path ? asset('storage/' . $comment->media_path) : null,
-                            'is_own' => $comment->user_id === Auth::id(), // Cek pemilik komentar
+                            'is_own' => $comment->user_id === Auth::id(),
                             'created_at' => $comment->created_at->diffForHumans(),
                         ];
                     }),
@@ -111,5 +114,22 @@ class DashboardController extends Controller
         return redirect()->back();
     }
     
-    public function joinProject(Request $request) { /* ... */ }
+    public function joinProject(Request $request) 
+    { 
+        $request->validate(['token' => 'required|string']);
+
+        $project = Project::where('access_token', $request->token)->first();
+
+        if (!$project) {
+            return back()->withErrors(['token' => 'Invalid project token.']);
+        }
+
+        if ($project->users()->where('user_id', Auth::id())->exists()) {
+            return back()->with('info', 'You are already in this project.');
+        }
+
+        $project->users()->attach(Auth::id());
+
+        return redirect()->route('client.dashboard')->with('success', 'Project joined successfully!');
+    }
 }

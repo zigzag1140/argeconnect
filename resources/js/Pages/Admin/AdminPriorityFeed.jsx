@@ -1,6 +1,7 @@
 import { useState, useRef } from "react";
 import { Head, Link, useForm, router } from "@inertiajs/react";
 import AdminSidebar from "@/Components/Admin/AdminSidebar";
+import Swal from "sweetalert2";
 import {
     Zap,
     MessageSquare,
@@ -22,9 +23,26 @@ export default function PriorityFeed({ feeds, highPriorityCount }) {
     const fileInputRef = useRef(null);
 
     const handleResolve = (id) => {
-        if (confirm("Mark this issue as resolved?")) {
-            router.post(route("admin.feed.resolve", id));
-        }
+        Swal.fire({
+            title: "Mark as Resolved?",
+            text: "This will move the issue to the resolved list.",
+            icon: "question",
+            showCancelButton: true,
+            confirmButtonColor: "#00C950",
+            cancelButtonColor: "#6B7280",
+            confirmButtonText: "Yes, Resolve it!",
+        }).then((result) => {
+            if (result.isConfirmed) {
+                router.post(route("admin.feed.resolve", id));
+                Swal.fire({
+                    title: "Resolved!",
+                    text: "Issue has been marked as resolved.",
+                    icon: "success",
+                    timer: 1500,
+                    showConfirmButton: false,
+                });
+            }
+        });
     };
 
     const submitReply = (e, commentId) => {
@@ -33,6 +51,12 @@ export default function PriorityFeed({ feeds, highPriorityCount }) {
             onSuccess: () => {
                 reset();
                 setReplyingToId(null);
+                Swal.fire({
+                    icon: "success",
+                    title: "Reply Sent",
+                    showConfirmButton: false,
+                    timer: 1500,
+                });
             },
         });
     };
@@ -103,9 +127,16 @@ export default function PriorityFeed({ feeds, highPriorityCount }) {
                             >
                                 <div className="p-6">
                                     <div className="flex items-start gap-3 mb-4">
-                                        <div className="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold bg-blue-600 shrink-0">
-                                            {item.initials}
-                                        </div>
+                                        <img
+                                            src={
+                                                item.user_avatar
+                                                    ? `/storage/${item.user_avatar}`
+                                                    : "/images/default.jpg"
+                                            }
+                                            alt={item.user}
+                                            className="w-12 h-12 rounded-full object-cover shrink-0 border border-gray-200"
+                                        />
+
                                         <div className="flex-1 min-w-0">
                                             <div className="flex items-center gap-2 mb-1">
                                                 <span className="text-[#101828] font-bold">

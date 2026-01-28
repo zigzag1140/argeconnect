@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, router } from "@inertiajs/react";
+import { Link, router, usePage } from "@inertiajs/react";
 import {
     LayoutDashboard,
     FolderOpen,
@@ -8,9 +8,13 @@ import {
     LogOut,
     AlertTriangle,
     X,
-} from "lucide-react";
+    UserCircle,
+} from "lucide-react"; 
 
 export default function AdminSidebar({ activePage, highPriorityCount = 0 }) {
+    const { auth } = usePage().props;
+    const user = auth.user;
+
     const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
 
     const linkClasses = (page) =>
@@ -99,22 +103,47 @@ export default function AdminSidebar({ activePage, highPriorityCount = 0 }) {
                 </nav>
 
                 <div className="p-4 border-t border-[#E5E7EB]">
-                    <div className="flex items-center gap-3 p-3 rounded-[10px] hover:bg-gray-50 transition-colors group">
-                        <div className="w-10 h-10 rounded-full bg-gradient-to-b from-[#2563EB] to-[#1D4ED8] flex items-center justify-center text-white font-bold text-sm shrink-0">
-                            AD
-                        </div>
-                        <div className="flex-1 min-w-0">
-                            <p className="text-[#101828] text-sm font-medium truncate">
-                                Admin User
-                            </p>
-                            <p className="text-[#6A7282] text-xs font-normal truncate">
-                                Developer
-                            </p>
-                        </div>
+                    <div className="flex items-center gap-3 p-3 rounded-[10px] hover:bg-gray-50 transition-colors group relative">
+                        <Link
+                            href={route("profile.edit")}
+                            className="flex items-center gap-3 flex-1 min-w-0"
+                        >
+                            <div className="w-10 h-10 rounded-full bg-gray-200 overflow-hidden flex items-center justify-center border border-gray-100 shrink-0">
+                                {user.avatar ? (
+                                    <img
+                                        src={`/storage/${user.avatar}`}
+                                        alt="Avatar"
+                                        className="w-full h-full object-cover"
+                                    />
+                                ) : (
+                                    <svg
+                                        className="w-12 h-12 text-gray-400 mt-2"
+                                        fill="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path d="M24 20.993V24H0v-2.996A14.977 14.977 0 0112.004 15c4.904 0 9.26 2.354 11.996 5.993zM16.002 8.999a4 4 0 11-8 0 4 4 0 018 0z" />
+                                    </svg>
+                                )}
+                            </div>
+
+                            <div className="flex-1 min-w-0">
+                                <p className="text-[#101828] text-sm font-medium truncate group-hover:text-blue-600 transition-colors">
+                                    {user.name}
+                                </p>
+                                <p className="text-[#6A7282] text-xs font-normal truncate capitalize">
+                                    {user.role === "admin"
+                                        ? "Developer"
+                                        : "Client"}
+                                </p>
+                            </div>
+                        </Link>
 
                         <button
-                            onClick={() => setIsLogoutModalOpen(true)}
-                            className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-full transition-colors"
+                            onClick={(e) => {
+                                e.preventDefault();
+                                setIsLogoutModalOpen(true);
+                            }}
+                            className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-full transition-colors z-10"
                             title="Log Out"
                         >
                             <LogOut className="w-5 h-5" />
@@ -143,9 +172,7 @@ export default function AdminSidebar({ activePage, highPriorityCount = 0 }) {
                                 Confirm Log Out
                             </h3>
                             <p className="text-sm text-gray-500 mb-6">
-                                Are you sure you want to log out from the Admin
-                                Portal? You will need to sign in again to access
-                                the dashboard.
+                                Are you sure you want to log out?
                             </p>
 
                             <div className="flex gap-3">

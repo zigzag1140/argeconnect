@@ -85,6 +85,7 @@ class ProjectController extends Controller
                     'id' => $feed->id,
                     'user' => $feed->user ? [
                         'name' => $feed->user->name,
+                        'avatar' => $feed->user->avatar, 
                         'initials' => substr($feed->user->name, 0, 2) ?? 'AD',
                         'role' => $feed->user->role === 'admin' ? 'Developer' : 'Client',
                     ] : null,
@@ -97,6 +98,7 @@ class ProjectController extends Controller
                         return [
                             'id' => $comment->id,
                             'user_name' => $comment->user->name,
+                            'user_avatar' => $comment->user->avatar,
                             'user_initials' => substr($comment->user->name, 0, 2),
                             'user_role' => $comment->user->role === 'admin' ? 'Developer' : 'Client',
                             'content' => $comment->content,
@@ -107,6 +109,8 @@ class ProjectController extends Controller
                 ];
             });
 
+        $client = $project->users->first();
+
         return Inertia::render('Admin/ProjectDetails', [
             'project' => [
                 'id' => $project->id,
@@ -115,7 +119,11 @@ class ProjectController extends Controller
                 'status' => $project->status,
                 'progress' => $project->progress,
                 'access_token' => $project->access_token,
-                'client' => $project->users->first() ? $project->users->first() : null,
+                'client' => $client ? [
+                    'name' => $client->name,
+                    'avatar' => $client->avatar,
+                    'email' => $client->email
+                ] : null,
                 'created_at' => $project->created_at->format('d M Y'),
             ],
             'feeds' => $feeds, 
@@ -131,10 +139,10 @@ class ProjectController extends Controller
 
         $changes = [];
         if ($project->status !== $validated['status']) {
-            $changes[] = "Status updated to **{$validated['status']}**";
+            $changes[] = "Status updated to {$validated['status']}";
         }
         if ($project->progress != $validated['progress']) {
-            $changes[] = "Progress updated to **{$validated['progress']}%**";
+            $changes[] = "Progress updated to {$validated['progress']}%";
         }
 
         $project->update($validated);

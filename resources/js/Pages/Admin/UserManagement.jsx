@@ -104,11 +104,16 @@ export default function UserManagement({ auth, clients }) {
                                         className="grid grid-cols-12 items-center py-4 px-6 hover:bg-gray-50 transition-colors relative"
                                     >
                                         <div className="col-span-4 flex items-center gap-3">
-                                            <div
-                                                className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm shrink-0 ${client.role === "admin" ? "bg-slate-800" : "bg-gradient-to-b from-[#2563EB] to-[#1D4ED8]"}`}
-                                            >
-                                                {client.initials}
-                                            </div>
+                                            <img
+                                                src={
+                                                    client.avatar
+                                                        ? `/storage/${client.avatar}` 
+                                                        : "/images/default.jpg" 
+                                                }
+                                                alt={client.name}
+                                                className="w-10 h-10 rounded-full object-cover border border-gray-200 shrink-0 bg-gray-100"
+                                            />
+
                                             <div className="min-w-0">
                                                 <p className="text-[#101828] text-base font-normal truncate">
                                                     {client.name}
