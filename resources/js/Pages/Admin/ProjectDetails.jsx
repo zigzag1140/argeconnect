@@ -16,6 +16,7 @@ import {
     Copy,
     Check,
     Key,
+    Reply, // Import icon Reply
 } from "lucide-react";
 
 export default function ProjectDetails({ auth, project, feeds }) {
@@ -40,10 +41,18 @@ export default function ProjectDetails({ auth, project, feeds }) {
         media: null,
     });
 
+    // State untuk Edit Feed
     const [editingId, setEditingId] = useState(null);
     const [editContent, setEditContent] = useState("");
+
+    // State untuk Reply Comment
+    const [replyingCommentId, setReplyingCommentId] = useState(null);
+    const [replyContent, setReplyContent] = useState("");
+    const [replyFile, setReplyFile] = useState(null);
+
     const [copied, setCopied] = useState(false);
     const fileInputRef = useRef(null);
+    const replyFileRef = useRef(null);
 
     const handleUpdate = (e) => {
         e.preventDefault();
@@ -91,6 +100,35 @@ export default function ProjectDetails({ auth, project, feeds }) {
         setTimeout(() => setCopied(false), 2000);
     };
 
+    // --- Logic Reply Baru ---
+    const handleReplySubmit = (commentId) => {
+        if (!replyContent && !replyFile) return;
+
+        const formData = new FormData();
+        formData.append("content", replyContent);
+        if (replyFile) {
+            formData.append("media", replyFile);
+        }
+
+        router.post(
+            route("admin.projects.comment.reply", commentId),
+            formData,
+            {
+                onSuccess: () => {
+                    setReplyingCommentId(null);
+                    setReplyContent("");
+                    setReplyFile(null);
+                },
+            },
+        );
+    };
+
+    const cancelReply = () => {
+        setReplyingCommentId(null);
+        setReplyContent("");
+        setReplyFile(null);
+    };
+
     return (
         <div className="flex h-screen bg-[#F9FAFB] font-sans">
             <Head title={`${project.title} - Details`} />
@@ -114,6 +152,7 @@ export default function ProjectDetails({ auth, project, feeds }) {
 
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                         <div className="lg:col-span-2 space-y-6">
+                            {/* Controls Card */}
                             <div className="bg-white rounded-2xl border border-[#E5E7EB] shadow-sm p-6">
                                 <div className="flex items-center justify-between mb-6">
                                     <h3 className="text-[#101828] text-lg font-bold">
@@ -188,6 +227,7 @@ export default function ProjectDetails({ auth, project, feeds }) {
                                 </form>
                             </div>
 
+                            {/* Feeds Section */}
                             <div className="bg-white rounded-2xl border border-[#E5E7EB] shadow-sm p-6">
                                 <div className="flex items-center gap-2 mb-6">
                                     <MessageSquare className="w-5 h-5 text-[#2563EB]" />
@@ -196,6 +236,7 @@ export default function ProjectDetails({ auth, project, feeds }) {
                                     </h3>
                                 </div>
 
+                                {/* Post Input */}
                                 <div className="mb-8 bg-[#F9FAFB] p-4 rounded-xl border border-[#E5E7EB] focus-within:ring-2 focus-within:ring-[#2563EB] focus-within:border-transparent transition-all">
                                     <textarea
                                         rows={3}
@@ -266,6 +307,7 @@ export default function ProjectDetails({ auth, project, feeds }) {
                                     </div>
                                 </div>
 
+                                {/* Feed List */}
                                 <div className="space-y-8">
                                     {feeds.length > 0 ? (
                                         feeds.map((feed) => (
@@ -273,6 +315,7 @@ export default function ProjectDetails({ auth, project, feeds }) {
                                                 key={feed.id}
                                                 className="relative pl-8 border-l-2 border-gray-100 group"
                                             >
+                                                {/* Icon Bulatan */}
                                                 <div
                                                     className={`absolute -left-[11px] top-0 w-5 h-5 rounded-full border-2 border-white flex items-center justify-center ${feed.type === "system" ? "bg-orange-400" : "bg-blue-500"}`}
                                                 >
@@ -286,6 +329,7 @@ export default function ProjectDetails({ auth, project, feeds }) {
                                                     )}
                                                 </div>
 
+                                                {/* Header Feed */}
                                                 <div className="mb-2 flex items-center justify-between">
                                                     <div className="flex items-center gap-2">
                                                         <span
@@ -302,6 +346,7 @@ export default function ProjectDetails({ auth, project, feeds }) {
                                                         </span>
                                                     </div>
 
+                                                    {/* Feed Actions (Edit/Delete) */}
                                                     <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                                                         {feed.type !==
                                                             "system" && (
@@ -333,6 +378,7 @@ export default function ProjectDetails({ auth, project, feeds }) {
                                                     </div>
                                                 </div>
 
+                                                {/* Konten Feed (Edit Mode vs View Mode) */}
                                                 {editingId === feed.id ? (
                                                     <div className="bg-white border border-[#2563EB] rounded-xl p-4 shadow-sm">
                                                         <textarea
@@ -396,10 +442,11 @@ export default function ProjectDetails({ auth, project, feeds }) {
                                                     </div>
                                                 )}
 
+                                                {/* Discussion / Comments Section */}
                                                 {feed.comments &&
                                                     feed.comments.length >
                                                         0 && (
-                                                        <div className="bg-gray-50 rounded-xl p-3 border border-gray-100 space-y-3 mt-4">
+                                                        <div className="bg-gray-50 rounded-xl p-3 border border-gray-100 space-y-4 mt-4">
                                                             <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider">
                                                                 Discussion
                                                             </h4>
@@ -409,57 +456,176 @@ export default function ProjectDetails({ auth, project, feeds }) {
                                                                         key={
                                                                             comment.id
                                                                         }
-                                                                        className="flex gap-3"
+                                                                        className="group/comment"
                                                                     >
-                                                                        {/* --- BAGIAN INI SUDAH DIPERBAIKI (PAKAI IMG) --- */}
-                                                                        <img
-                                                                            src={
-                                                                                comment.user_avatar
-                                                                                    ? `/storage/${comment.user_avatar}`
-                                                                                    : "/images/default.jpg"
-                                                                            }
-                                                                            alt={
-                                                                                comment.user_name
-                                                                            }
-                                                                            className="w-6 h-6 rounded-full object-cover shrink-0 border border-gray-100"
-                                                                        />
-                                                                        {/* ----------------------------------------------- */}
-
-                                                                        <div className="flex-1">
-                                                                            <div className="flex items-baseline gap-2">
-                                                                                <span className="text-xs font-bold text-gray-800">
-                                                                                    {
-                                                                                        comment.user_name
-                                                                                    }
-                                                                                </span>
-                                                                                <span className="text-[10px] text-gray-500">
-                                                                                    {
-                                                                                        comment.created_at
-                                                                                    }
-                                                                                </span>
-                                                                            </div>
-                                                                            <p className="text-xs text-gray-600 mt-0.5 whitespace-pre-wrap">
-                                                                                {
-                                                                                    comment.content
+                                                                        <div className="flex gap-3">
+                                                                            <img
+                                                                                src={
+                                                                                    comment.user_avatar
+                                                                                        ? `/storage/${comment.user_avatar}`
+                                                                                        : "/images/default.jpg"
                                                                                 }
-                                                                            </p>
-                                                                            {comment.media && (
-                                                                                <a
-                                                                                    href={
-                                                                                        comment.media
-                                                                                    }
-                                                                                    target="_blank"
-                                                                                    className="text-[10px] text-blue-500 underline flex items-center gap-1 mt-1"
-                                                                                >
-                                                                                    <Paperclip
-                                                                                        size={
-                                                                                            10
+                                                                                alt={
+                                                                                    comment.user_name
+                                                                                }
+                                                                                className="w-6 h-6 rounded-full object-cover shrink-0 border border-gray-100"
+                                                                            />
+                                                                            <div className="flex-1">
+                                                                                <div className="flex items-center justify-between">
+                                                                                    <div className="flex items-baseline gap-2">
+                                                                                        <span className="text-xs font-bold text-gray-800">
+                                                                                            {
+                                                                                                comment.user_name
+                                                                                            }
+                                                                                        </span>
+                                                                                        <span className="text-[10px] text-gray-500">
+                                                                                            {
+                                                                                                comment.created_at
+                                                                                            }
+                                                                                        </span>
+                                                                                    </div>
+                                                                                    {/* Tombol Reply Kecil */}
+                                                                                    <button
+                                                                                        onClick={() =>
+                                                                                            setReplyingCommentId(
+                                                                                                comment.id,
+                                                                                            )
                                                                                         }
-                                                                                    />{" "}
-                                                                                    Attachment
-                                                                                </a>
-                                                                            )}
+                                                                                        className="text-[10px] text-gray-400 hover:text-blue-600 flex items-center gap-1 opacity-0 group-hover/comment:opacity-100 transition-opacity"
+                                                                                    >
+                                                                                        <Reply
+                                                                                            size={
+                                                                                                10
+                                                                                            }
+                                                                                        />{" "}
+                                                                                        Reply
+                                                                                    </button>
+                                                                                </div>
+
+                                                                                <p className="text-xs text-gray-600 mt-0.5 whitespace-pre-wrap">
+                                                                                    {
+                                                                                        comment.content
+                                                                                    }
+                                                                                </p>
+
+                                                                                {comment.media && (
+                                                                                    <a
+                                                                                        href={
+                                                                                            comment.media
+                                                                                        }
+                                                                                        target="_blank"
+                                                                                        className="text-[10px] text-blue-500 underline flex items-center gap-1 mt-1"
+                                                                                    >
+                                                                                        <Paperclip
+                                                                                            size={
+                                                                                                10
+                                                                                            }
+                                                                                        />{" "}
+                                                                                        Attachment
+                                                                                    </a>
+                                                                                )}
+                                                                            </div>
                                                                         </div>
+
+                                                                        {/* FORM REPLY (Hanya muncul di komentar yang diklik) */}
+                                                                        {replyingCommentId ===
+                                                                            comment.id && (
+                                                                            <div className="ml-9 mt-2 bg-white border border-blue-200 rounded-lg p-2 shadow-sm animate-in fade-in slide-in-from-top-1">
+                                                                                <textarea
+                                                                                    rows={
+                                                                                        2
+                                                                                    }
+                                                                                    autoFocus
+                                                                                    placeholder={`Replying to ${comment.user_name}...`}
+                                                                                    value={
+                                                                                        replyContent
+                                                                                    }
+                                                                                    onChange={(
+                                                                                        e,
+                                                                                    ) =>
+                                                                                        setReplyContent(
+                                                                                            e
+                                                                                                .target
+                                                                                                .value,
+                                                                                        )
+                                                                                    }
+                                                                                    className="w-full text-xs border-gray-200 rounded focus:ring-blue-500 focus:border-blue-500 mb-2 resize-none"
+                                                                                ></textarea>
+
+                                                                                <div className="flex items-center justify-between">
+                                                                                    <div className="flex items-center gap-2">
+                                                                                        <button
+                                                                                            onClick={() =>
+                                                                                                replyFileRef.current.click()
+                                                                                            }
+                                                                                            className="text-gray-400 hover:text-blue-500"
+                                                                                            title="Attach file"
+                                                                                        >
+                                                                                            <Paperclip
+                                                                                                size={
+                                                                                                    14
+                                                                                                }
+                                                                                            />
+                                                                                        </button>
+                                                                                        <input
+                                                                                            type="file"
+                                                                                            ref={
+                                                                                                replyFileRef
+                                                                                            }
+                                                                                            className="hidden"
+                                                                                            onChange={(
+                                                                                                e,
+                                                                                            ) =>
+                                                                                                setReplyFile(
+                                                                                                    e
+                                                                                                        .target
+                                                                                                        .files[0],
+                                                                                                )
+                                                                                            }
+                                                                                        />
+                                                                                        {replyFile && (
+                                                                                            <span className="text-[10px] text-green-600 flex items-center gap-1">
+                                                                                                <Check
+                                                                                                    size={
+                                                                                                        10
+                                                                                                    }
+                                                                                                />{" "}
+                                                                                                {replyFile.name.substring(
+                                                                                                    0,
+                                                                                                    10,
+                                                                                                )}
+                                                                                                ...
+                                                                                            </span>
+                                                                                        )}
+                                                                                    </div>
+                                                                                    <div className="flex gap-2">
+                                                                                        <button
+                                                                                            onClick={
+                                                                                                cancelReply
+                                                                                            }
+                                                                                            className="px-2 py-1 text-[10px] text-gray-500 hover:bg-gray-100 rounded"
+                                                                                        >
+                                                                                            Cancel
+                                                                                        </button>
+                                                                                        <button
+                                                                                            onClick={() =>
+                                                                                                handleReplySubmit(
+                                                                                                    comment.id,
+                                                                                                )
+                                                                                            }
+                                                                                            className="px-2 py-1 text-[10px] text-white bg-blue-600 hover:bg-blue-700 rounded flex items-center gap-1"
+                                                                                        >
+                                                                                            <Send
+                                                                                                size={
+                                                                                                    10
+                                                                                                }
+                                                                                            />{" "}
+                                                                                            Reply
+                                                                                        </button>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        )}
                                                                     </div>
                                                                 ),
                                                             )}

@@ -15,7 +15,9 @@ class Feed extends Model
         'content',
         'media_path',
         'type',
-        'approval_status' 
+        'approval_status',
+        'priority',       
+        'priority_score', 
     ];
 
     public function project()

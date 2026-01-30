@@ -15,7 +15,8 @@ class Comment extends Model
         'content', 
         'media_path',
         'priority', 
-        'is_resolved', 
+        'is_resolved',
+        'priority_score',  
     ];
 
     public function feed()

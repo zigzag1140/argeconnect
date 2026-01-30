@@ -13,18 +13,36 @@ class PriorityFeedController extends Controller
 {
     public function index()
     {
+        $unanalyzedComments = Comment::where('is_resolved', false)
+            ->whereNull('priority_score') 
+            ->whereHas('user', function($q) {
+                $q->where('role', 'client'); 
+            })
+            ->latest()
+            ->take(5)
+            ->get();
+
+        foreach ($unanalyzedComments as $comment) {
+            $analysis = $this->analyzeSentiment($comment->content);
+            
+            $score = ($analysis['priority'] === 'High') ? 1 : 0;
+
+            $comment->update([
+                'priority' => $analysis['priority'],
+                'priority_score' => $score
+            ]);
+        }
+
         $comments = Comment::with(['user', 'feed.project'])
             ->where('is_resolved', false)
             ->whereHas('user', function($q) {
                 $q->where('role', 'client'); 
             })
+            ->orderByDesc('priority_score') 
             ->latest()
             ->get();
 
         $feeds = $comments->map(function ($comment) {
-            
-            $analysis = $this->analyzeSentiment($comment->content);
-
             return [
                 'id' => $comment->id,
                 'user' => $comment->user->name,
@@ -33,19 +51,15 @@ class PriorityFeedController extends Controller
                 'role' => 'Client',
                 'project' => $comment->feed->project->title ?? 'Unknown Project',
                 'project_id' => $comment->feed->project_id ?? null, 
-                'priority' => $analysis['priority'], 
+                'priority' => $comment->priority, 
                 'content' => $comment->content,
                 'time' => $comment->created_at->diffForHumans(),
             ];
         });
 
-        $sortedFeeds = $feeds->sortByDesc(function ($feed) {
-            return $feed['priority'] === 'High' ? 1 : 0;
-        })->values();
-
         return Inertia::render('Admin/AdminPriorityFeed', [ 
-            'feeds' => $sortedFeeds,
-            'highPriorityCount' => $sortedFeeds->where('priority', 'High')->count()
+            'feeds' => $feeds,
+            'highPriorityCount' => $feeds->where('priority', 'High')->count()
         ]);
     }
 
@@ -94,6 +108,8 @@ class PriorityFeedController extends Controller
             'user_id' => Auth::id(),
             'content' => $request->content,
             'media_path' => $path, 
+            'priority' => 'Normal',
+            'priority_score' => 0,
         ]);
 
         return redirect()->back()->with('success', 'Reply sent successfully.');

@@ -3,7 +3,7 @@ import { Head, useForm, usePage } from "@inertiajs/react";
 import ClientNavbar from "@/Components/Client/ClientNavbar";
 import { Transition } from "@headlessui/react";
 import { Camera, Save, Lock, User, Mail, AlertCircle } from "lucide-react";
-
+    
 export default function Profile({ auth }) {
     const { user } = usePage().props;
     const fileInputRef = useRef(null);

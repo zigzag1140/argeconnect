@@ -41,6 +41,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::post('/projects/{project}/feed', 'storeFeed')->name('projects.feed.store');
             Route::delete('/feeds/{feed}', 'destroyFeed')->name('feeds.destroy');
             Route::patch('/feeds/{feed}', 'updateFeed')->name('feeds.update');
+            Route::post('/comments/{comment}/reply', 'storeReply')->name('projects.comment.reply');
         });
 
         Route::controller(PriorityFeedController::class)->group(function () {

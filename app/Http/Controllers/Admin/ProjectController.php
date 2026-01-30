@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 use App\Models\Feed;
+use App\Models\Comment;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
@@ -233,5 +234,29 @@ class ProjectController extends Controller
         ]);
 
         return redirect()->back()->with('success', 'Update edited successfully');
+    }
+
+    public function storeReply(Request $request, Comment $comment)
+    {
+        $request->validate([
+            'content' => 'required|string',
+            'media' => 'nullable|file|mimes:jpg,jpeg,png,pdf,doc,docx|max:10240',
+        ]);
+
+        $mediaPath = null;
+        if ($request->hasFile('media')) {
+            $mediaPath = $request->file('media')->store('comments', 'public');
+        }
+
+        Comment::create([
+            'feed_id' => $comment->feed_id,
+            'user_id' => Auth::id(),
+            'content' => $request->content,
+            'media_path' => $mediaPath,
+            'priority' => 'Normal',
+            'priority_score' => 0,
+        ]);
+
+        return redirect()->back()->with('success', 'Reply posted successfully');
     }
 }
