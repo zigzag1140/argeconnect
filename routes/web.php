@@ -36,6 +36,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::post('/projects', 'store')->name('projects.store');
             Route::get('/projects/{project}', 'show')->name('projects.show');
             Route::patch('/projects/{project}', 'update')->name('projects.update');
+            Route::delete('/projects/{project}', 'destroy')->name('projects.destroy');
             
             Route::post('/projects/{project}/feed', 'storeFeed')->name('projects.feed.store');
             Route::delete('/feeds/{feed}', 'destroyFeed')->name('feeds.destroy');
@@ -53,6 +54,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::patch('/users/{user}', 'update')->name('users.update');
             Route::delete('/users/{user}', 'destroy')->name('users.destroy');
         });
+        
     });
 
 
@@ -61,6 +63,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::controller(ClientDashboardController::class)->group(function () {
             Route::get('/dashboard', 'index')->name('dashboard');
             Route::post('/join', 'joinProject')->name('project.join');
+            Route::post('/project/{project}/leave', 'leaveProject')->name('project.leave');
             Route::post('/feed/{feed}/approve', 'approveFeed')->name('feed.approve');
             Route::post('/feed/{feed}/comment', 'storeComment')->name('feed.comment.store');
             Route::post('/comment/{comment}/update', 'updateComment')->name('comment.update');

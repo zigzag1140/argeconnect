@@ -6,6 +6,7 @@ export default function CreateProject({ auth }) {
     const { data, setData, post, processing, errors } = useForm({
         title: "",
         description: "",
+        deadline: "",
         status: "In Progress",
         progress: 0,
     });
@@ -91,7 +92,6 @@ export default function CreateProject({ auth }) {
                                         <option value="In Progress">
                                             In Progress
                                         </option>
-                                        <option value="Pending">Pending</option>
                                         <option value="Completed">
                                             Completed
                                         </option>
@@ -100,22 +100,41 @@ export default function CreateProject({ auth }) {
 
                                 <div>
                                     <label className="block text-sm font-medium text-[#344054] mb-1.5">
-                                        Progress:{" "}
-                                        <span className="font-bold text-[#2563EB]">
-                                            {data.progress}%
-                                        </span>
+                                        Due Date
                                     </label>
                                     <input
-                                        type="range"
-                                        min="0"
-                                        max="100"
-                                        value={data.progress}
+                                        type="date"
+                                        value={data.deadline}
                                         onChange={(e) =>
-                                            setData("progress", e.target.value)
+                                            setData("deadline", e.target.value)
                                         }
-                                        className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-[#2563EB]"
+                                        className="block w-full rounded-lg border border-[#D0D5DD] px-3.5 py-2.5 text-[#101828] shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-[#2563EB] sm:text-sm sm:leading-6"
                                     />
+                                    {errors.deadline && (
+                                        <p className="mt-1 text-sm text-red-600">
+                                            {errors.deadline}
+                                        </p>
+                                    )}
                                 </div>
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-[#344054] mb-1.5">
+                                    Progress:{" "}
+                                    <span className="font-bold text-[#2563EB]">
+                                        {data.progress}%
+                                    </span>
+                                </label>
+                                <input
+                                    type="range"
+                                    min="0"
+                                    max="100"
+                                    value={data.progress}
+                                    onChange={(e) =>
+                                        setData("progress", e.target.value)
+                                    }
+                                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-[#2563EB]"
+                                />
                             </div>
 
                             <div className="pt-6 border-t border-[#E5E7EB] flex justify-end gap-3">

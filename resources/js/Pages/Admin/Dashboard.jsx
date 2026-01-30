@@ -6,7 +6,6 @@ import {
     AlertCircle,
     CheckCircle2,
     Info,
-    MessageSquare,
 } from "lucide-react";
 
 export default function Dashboard({
@@ -14,6 +13,7 @@ export default function Dashboard({
     totalProjects,
     activeProjects,
     totalClients,
+    pendingRevisions, // Menambahkan props dari controller
     recentActivities,
 }) {
     return (
@@ -63,7 +63,7 @@ export default function Dashboard({
                                 <AlertCircle className="w-6 h-6 text-[#EF4444]" />
                             </div>
                             <div className="text-[#101828] text-3xl font-bold mb-1">
-                                5
+                                {pendingRevisions}
                             </div>
                             <div className="text-[#364153] text-sm font-normal">
                                 Pending Revisions
@@ -112,7 +112,7 @@ export default function Dashboard({
                                                 src={
                                                     activity.user_avatar
                                                         ? `/storage/${activity.user_avatar}`
-                                                        : "/images/default-avatar.png"
+                                                        : "/images/default.jpg"
                                                 }
                                                 alt={activity.user_name}
                                                 className="w-10 h-10 rounded-full object-cover border border-gray-200 shrink-0 bg-gray-100"

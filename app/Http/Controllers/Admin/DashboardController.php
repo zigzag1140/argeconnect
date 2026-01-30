@@ -67,10 +67,13 @@ class DashboardController extends Controller
             })
             ->values();
 
+        $pendingRevisions = Feed::where('approval_status', 'revision')->count();
+
         return Inertia::render('Admin/Dashboard', [
             'totalProjects' => Project::count(),
             'activeProjects' => Project::where('status', 'In Progress')->count(),
             'totalClients' => User::where('role', 'client')->count(),
+            'pendingRevisions' => $pendingRevisions,
             'recentActivities' => $recentActivities,
         ]);
     }

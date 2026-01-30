@@ -6,9 +6,16 @@ import {
     ChevronDown,
     AlertTriangle,
     X,
+    Briefcase,
 } from "lucide-react";
 
-export default function ClientNavbar({ user }) {
+export default function ClientNavbar({
+    user,
+    project,
+    myProjects,
+    onLeaveProject,
+    onSwitchProject,
+}) {
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
 
@@ -72,7 +79,7 @@ export default function ClientNavbar({ user }) {
                                     onClick={() => setIsDropdownOpen(false)}
                                 ></div>
 
-                                <div className="absolute right-0 top-full mt-2 w-56 bg-white rounded-xl shadow-lg border border-gray-100 py-2 z-20 animate-in fade-in slide-in-from-top-2">
+                                <div className="absolute right-0 top-full mt-2 w-64 bg-white rounded-xl shadow-lg border border-gray-100 py-2 z-20 animate-in fade-in slide-in-from-top-2">
                                     <div className="px-4 py-2 border-b border-gray-50 sm:hidden">
                                         <p className="text-sm font-bold text-gray-900">
                                             {user?.name}
@@ -90,6 +97,41 @@ export default function ClientNavbar({ user }) {
                                         <User size={16} />
                                         My Profile
                                     </Link>
+
+                                    {myProjects && myProjects.length > 1 && (
+                                        <div className="border-t border-gray-50 my-1">
+                                            <p className="px-4 py-1.5 text-[10px] font-bold text-gray-400 uppercase tracking-wider">
+                                                Switch Project
+                                            </p>
+                                            {myProjects.map((p) => (
+                                                <button
+                                                    key={p.id}
+                                                    onClick={() => {
+                                                        onSwitchProject(p.id);
+                                                        setIsDropdownOpen(
+                                                            false,
+                                                        );
+                                                    }}
+                                                    className={`w-full text-left px-4 py-2 text-sm truncate transition-colors ${project && project.id === p.id ? "text-[#2563EB] bg-blue-50 font-medium" : "text-gray-600 hover:bg-gray-50"}`}
+                                                >
+                                                    {p.title}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    )}
+
+                                    {project && (
+                                        <button
+                                            onClick={() => {
+                                                setIsDropdownOpen(false);
+                                                onLeaveProject();
+                                            }}
+                                            className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-orange-600 hover:bg-orange-50 transition-colors text-left"
+                                        >
+                                            <Briefcase size={16} />
+                                            Leave Project
+                                        </button>
+                                    )}
 
                                     <div className="border-t border-gray-100 my-1"></div>
 

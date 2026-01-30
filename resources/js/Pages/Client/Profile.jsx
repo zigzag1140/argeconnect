@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 import { Head, useForm, usePage } from "@inertiajs/react";
 import ClientNavbar from "@/Components/Client/ClientNavbar";
+import { Transition } from "@headlessui/react";
 import { Camera, Save, Lock, User, Mail, AlertCircle } from "lucide-react";
 
 export default function Profile({ auth }) {
@@ -10,7 +11,15 @@ export default function Profile({ auth }) {
         user.avatar ? `/storage/${user.avatar}` : "/images/default.jpg",
     );
 
-    const { data, setData, post, processing, errors, reset } = useForm({
+    const {
+        data,
+        setData,
+        post,
+        processing,
+        errors,
+        reset,
+        recentlySuccessful,
+    } = useForm({
         name: user.name,
         email: user.email,
         avatar: null,
@@ -198,7 +207,17 @@ export default function Profile({ auth }) {
                             </div>
                         </div>
 
-                        <div className="flex justify-end pt-6 border-t border-gray-100">
+                        <div className="flex items-center justify-end gap-4 pt-6 border-t border-gray-100">
+                            <Transition
+                                show={recentlySuccessful}
+                                enter="transition ease-in-out"
+                                enterFrom="opacity-0"
+                                leave="transition ease-in-out"
+                                leaveTo="opacity-0"
+                            >
+                                <p className="text-sm text-gray-600">Saved.</p>
+                            </Transition>
+
                             <button
                                 type="submit"
                                 disabled={processing}

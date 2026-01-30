@@ -12,9 +12,15 @@ import {
     Pencil,
     FileImage,
     Info,
+    Clock,
 } from "lucide-react";
 
 export default function ProjectDashboard({ project, feeds }) {
+    const getDeadlineColor = (time) => {
+        if (time === "Overdue") return "text-red-600 font-bold";
+        return "text-gray-600";
+    };
+
     return (
         <main className="max-w-5xl mx-auto py-8 px-6 space-y-8 pb-20">
             <div>
@@ -32,14 +38,23 @@ export default function ProjectDashboard({ project, feeds }) {
             </div>
 
             <div className="bg-white rounded-2xl border border-[#E5E7EB] shadow-sm p-8">
-                <div className="flex justify-between items-center mb-6">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
                     <h2 className="text-[#101828] text-xl font-bold">
                         Overall Progress
                     </h2>
-                    <div className="flex items-center gap-2 text-[#2563EB]">
-                        <span className="text-xl font-bold">
-                            {project.progress}% Complete
-                        </span>
+
+                    <div className="flex items-center gap-6">
+                        <div
+                            className={`flex items-center gap-2 text-sm ${getDeadlineColor(project.remaining_time)}`}
+                        >
+                            <Clock size={18} />
+                            <span>{project.remaining_time}</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-[#2563EB]">
+                            <span className="text-xl font-bold">
+                                {project.progress}% Complete
+                            </span>
+                        </div>
                     </div>
                 </div>
                 <div className="w-full bg-gray-100 rounded-full h-4 overflow-hidden">
@@ -140,7 +155,7 @@ function FeedItem({ feed }) {
                             src={
                                 feed.user_avatar
                                     ? `/storage/${feed.user_avatar}`
-                                    : "/images/avatar.jpg"
+                                    : "/images/default.jpg"
                             }
                             alt={feed.user_name}
                             className="w-12 h-12 rounded-full object-cover shadow-sm border border-gray-200"
@@ -348,7 +363,7 @@ function CommentItem({ comment }) {
                         src={
                             comment.user_avatar
                                 ? `/storage/${comment.user_avatar}`
-                                : "/images/avatar.jpg"
+                                : "/images/default.jpg"
                         }
                         alt={comment.user_name}
                         className="w-6 h-6 rounded-full object-cover border border-gray-200"

@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { Head, Link } from "@inertiajs/react";
+import { Head, Link, router } from "@inertiajs/react";
 import AdminSidebar from "@/Components/Admin/AdminSidebar";
-import { Search, Clock, Plus, Users, FolderOpen } from "lucide-react";
+import Swal from "sweetalert2";
+import { Search, Clock, Plus, User, FolderOpen, Trash2 } from "lucide-react";
 
 export default function AllProjects({ auth, projects }) {
     const [searchTerm, setSearchTerm] = useState("");
@@ -16,6 +17,35 @@ export default function AllProjects({ auth, projects }) {
             default:
                 return "bg-gray-100 text-gray-700";
         }
+    };
+
+    const getDeadlineColor = (remaining) => {
+        if (remaining === "Overdue") return "text-red-600 font-bold";
+        return "text-gray-600";
+    };
+
+    const handleDelete = (id) => {
+        Swal.fire({
+            title: "Are you sure?",
+            text: "You won't be able to revert this! All data related to this project will be lost.",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#EF4444",
+            cancelButtonColor: "#6B7280",
+            confirmButtonText: "Yes, delete it!",
+        }).then((result) => {
+            if (result.isConfirmed) {
+                router.delete(route("admin.projects.destroy", id), {
+                    onSuccess: () => {
+                        Swal.fire(
+                            "Deleted!",
+                            "The project has been deleted.",
+                            "success",
+                        );
+                    },
+                });
+            }
+        });
     };
 
     const filteredProjects = projects.filter((project) => {
@@ -89,7 +119,7 @@ export default function AllProjects({ auth, projects }) {
                             filteredProjects.map((project) => (
                                 <div
                                     key={project.id}
-                                    className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 hover:shadow-lg transition-all cursor-pointer flex flex-col h-full"
+                                    className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 hover:shadow-lg transition-all cursor-pointer flex flex-col h-full group"
                                 >
                                     <div className="flex-1 flex flex-col">
                                         <div className="flex items-start justify-between mb-4 gap-4">
@@ -135,25 +165,40 @@ export default function AllProjects({ auth, projects }) {
 
                                         <div className="flex items-center gap-4 text-sm text-gray-600 mb-6">
                                             <div className="flex items-center gap-1.5">
-                                                <Users size={16} />
-                                                <span>3 members</span>
+                                                <User size={16} />
+                                                <span className="truncate max-w-[120px]">
+                                                    {project.client}
+                                                </span>
                                             </div>
-                                            <div className="flex items-center gap-1.5">
+                                            <div
+                                                className={`flex items-center gap-1.5 ${getDeadlineColor(project.remaining_time)}`}
+                                            >
                                                 <Clock size={16} />
-                                                <span>2 weeks left</span>
+                                                <span>
+                                                    {project.remaining_time}
+                                                </span>
                                             </div>
                                         </div>
 
-                                        <div className="pt-4 border-t border-gray-100 mt-auto">
+                                        <div className="pt-4 border-t border-gray-100 mt-auto flex gap-3">
                                             <Link
                                                 href={route(
                                                     "admin.projects.show",
                                                     project.id,
                                                 )}
-                                                className="block w-full bg-[#2563EB] hover:bg-blue-700 text-white py-2 rounded-[10px] text-base font-normal transition-colors text-center"
+                                                className="flex-1 bg-[#2563EB] hover:bg-blue-700 text-white py-2 rounded-[10px] text-base font-normal transition-colors text-center"
                                             >
                                                 View Details
                                             </Link>
+                                            <button
+                                                onClick={() =>
+                                                    handleDelete(project.id)
+                                                }
+                                                className="px-3 py-2 bg-red-50 text-red-600 rounded-[10px] hover:bg-red-100 transition-colors border border-red-100"
+                                                title="Delete Project"
+                                            >
+                                                <Trash2 size={20} />
+                                            </button>
                                         </div>
                                     </div>
                                 </div>

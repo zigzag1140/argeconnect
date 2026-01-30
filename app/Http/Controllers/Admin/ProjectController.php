@@ -11,6 +11,7 @@ use Inertia\Inertia;
 use App\Models\Feed;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
 
 class ProjectController extends Controller
 {
@@ -21,12 +22,24 @@ class ProjectController extends Controller
         $projects = $projectsDB->map(function ($project) {
             $client = $project->users->first(); 
             
+            $deadline = $project->deadline ? Carbon::parse($project->deadline) : null;
+            $remaining = 'No Deadline';
+            
+            if ($deadline) {
+                if ($deadline->isPast()) {
+                    $remaining = 'Overdue';
+                } else {
+                    $remaining = $deadline->diffForHumans(null, true) . ' left';
+                }
+            }
+
             return [
                 'id' => $project->id,
                 'title' => $project->title,
                 'client' => $client ? $client->name : 'Unassigned',
                 'status' => $project->status,
                 'progress' => $project->progress,
+                'remaining_time' => $remaining,
             ];
         });
 
@@ -54,6 +67,7 @@ class ProjectController extends Controller
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
+            'deadline' => 'required|date',
             'status' => 'required|string',
             'progress' => 'required|integer|min:0|max:100',
         ]);
@@ -63,6 +77,7 @@ class ProjectController extends Controller
         Project::create([
             'title' => $validated['title'],
             'description' => $validated['description'],
+            'deadline' => $validated['deadline'],
             'status' => $validated['status'],
             'progress' => $validated['progress'],
             'access_token' => $token, 
@@ -119,6 +134,7 @@ class ProjectController extends Controller
                 'status' => $project->status,
                 'progress' => $project->progress,
                 'access_token' => $project->access_token,
+                'deadline' => $project->deadline ? Carbon::parse($project->deadline)->format('Y-m-d') : null,
                 'client' => $client ? [
                     'name' => $client->name,
                     'avatar' => $client->avatar,
@@ -135,14 +151,19 @@ class ProjectController extends Controller
         $validated = $request->validate([
             'status' => 'required|string',
             'progress' => 'required|integer|min:0|max:100',
+            'deadline' => 'nullable|date',
         ]);
 
         $changes = [];
         if ($project->status !== $validated['status']) {
-            $changes[] = "Status updated to {$validated['status']}";
+            $changes[] = "Status updated to <strong>{$validated['status']}</strong>";
         }
         if ($project->progress != $validated['progress']) {
-            $changes[] = "Progress updated to {$validated['progress']}%";
+            $changes[] = "Progress updated to <strong>{$validated['progress']}%</strong>";
+        }
+        if (isset($validated['deadline']) && $project->deadline != $validated['deadline']) {
+            $newDate = Carbon::parse($validated['deadline'])->format('d M Y');
+            $changes[] = "Deadline updated to <strong>{$newDate}</strong>";
         }
 
         $project->update($validated);
@@ -190,6 +211,15 @@ class ProjectController extends Controller
     {
         $feed->delete();
         return redirect()->back()->with('success', 'Update deleted successfully');
+    }
+
+    public function destroy(Project $project)
+    {
+        $project->users()->detach();
+        
+        $project->delete();
+
+        return redirect()->back()->with('success', 'Project deleted successfully');
     }
 
     public function updateFeed(Request $request, Feed $feed)

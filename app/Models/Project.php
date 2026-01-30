@@ -15,6 +15,7 @@ class Project extends Model
         'access_token', 
         'status', 
         'progress',
+        'deadline',
     ];
 
     public function users()
